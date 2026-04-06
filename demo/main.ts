@@ -11,6 +11,7 @@ const fpsSlider = document.getElementById('fps') as HTMLInputElement
 const angleSlider = document.getElementById('angle') as HTMLInputElement
 const pitchSlider = document.getElementById('pitch') as HTMLInputElement
 const activeColorPicker = document.getElementById('active-color') as HTMLInputElement
+const bgColorPicker = document.getElementById('bg-color') as HTMLInputElement
 const showInactiveCheckbox = document.getElementById('show-inactive') as HTMLInputElement
 const cameraSelect = document.getElementById('camera-type') as HTMLSelectElement
 const pixelSizeVal = document.getElementById('pixel-size-val')!
@@ -39,6 +40,7 @@ function createDisplay() {
     camera: { type: currentCameraType, angle: currentAngle, pitch: currentPitch },
   })
   const palette = d.getPalette()
+  palette[0] = bgColorPicker.value
   palette[1] = activeColorPicker.value
   d.setPalette(palette)
   return d
@@ -96,14 +98,28 @@ showInactiveCheckbox.addEventListener('change', () => {
   restartAnimation()
 })
 
+const pitchLabel = document.getElementById('pitch-label')!
+
+function updatePitchVisibility() {
+  pitchLabel.style.display = currentCameraType === 'orthographic' ? '' : 'none'
+}
+updatePitchVisibility()
+
 cameraSelect.addEventListener('change', () => {
   currentCameraType = cameraSelect.value as 'oblique' | 'isometric' | 'orthographic'
+  updatePitchVisibility()
   restartAnimation()
 })
 
 activeColorPicker.addEventListener('input', () => {
   const palette = display.getPalette()
   palette[1] = activeColorPicker.value
+  display.setPalette(palette)
+})
+
+bgColorPicker.addEventListener('input', () => {
+  const palette = display.getPalette()
+  palette[0] = bgColorPicker.value
   display.setPalette(palette)
 })
 

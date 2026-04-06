@@ -37,12 +37,12 @@ export class VoxelDisplay {
     this.width = options.width ?? 64
     this.height = options.height ?? 32
     this.pixelSize = options.pixelSize ?? 8
-    this.voxelHeight = options.voxelHeight ?? 10
+    this.voxelHeight = options.voxelHeight ?? 20
     this.depth = options.depth ?? 1
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'orthographic', angle: 315, pitch: 45 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 0, pitch: 60 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
   }
@@ -103,11 +103,10 @@ export class VoxelDisplay {
         const idx = this.buffer[y * this.width + x]
         const isOn = idx > 0
         if (!isOn && !this.showInactive) continue
-        // Y axis is vertical (down in SVG). Active pixels stick UP.
-        // voxelHeight is the extrusion Z size in pixels, convert to voxel units.
-        const extrudeUnits = (this.voxelHeight / this.pixelSize) * this.depth
-        const yPos = isOn ? -extrudeUnits : 0
-        const ySize = isOn ? extrudeUnits + 1 : 1
+        // All voxels share the same base at Y=0. Active ones extrude upward (negative Y).
+        const extrudeUnits = isOn ? (this.voxelHeight / this.pixelSize) * this.depth : 0
+        const yPos = -extrudeUnits
+        const ySize = extrudeUnits + 1
         h.addGeometry({
           type: 'box',
           position: [x, yPos, y] as [number, number, number],
