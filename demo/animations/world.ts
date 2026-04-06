@@ -3,6 +3,7 @@ import type { Animation } from './types'
 
 export const world: Animation = {
   name: 'World Map',
+  presets: { bgColor: '#fbf4ea', activeColor: '#f09719' },
   fn(display) {
     display.clear()
     const ox = Math.floor((display.width - WORLD_MAP_WIDTH) / 2)

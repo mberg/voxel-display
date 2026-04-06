@@ -2,6 +2,7 @@ import type { Animation } from './types'
 
 export const wave: Animation = {
   name: 'Wave',
+  presets: { bgColor: '#fbf4ea', activeColor: '#f09719' },
   fn(display, frame) {
     display.clear()
     for (let x = 0; x < display.width; x++) {

@@ -61,7 +61,8 @@ function bandAmplitude(lo: number, hi: number): number {
 }
 
 export const mic: Animation = {
-  name: 'Mic',
+  name: 'EQ',
+  presets: { bgColor: '#1a1a2e' },
   async onStart() {
     peaks = []
     peakDecay = []

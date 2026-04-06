@@ -1,5 +1,5 @@
 import { VoxelDisplay } from 'voxel-display'
-import { wave, sparkle, text, setTextSource, world, mic, type Animation } from './animations'
+import { wave, matrix, text, setTextSource, world, mic, type Animation } from './animations'
 
 const container = document.getElementById('display')!
 
@@ -133,8 +133,26 @@ bgColorPicker.addEventListener('input', () => {
 
 // --- Animations ---
 
+const DEFAULT_BG = '#fbf4ea'
+const DEFAULT_ACTIVE = '#f09719'
+
+function applyPresets(anim: Animation) {
+  const presets = anim.presets
+  if (presets?.palette) {
+    display.setPalette(presets.palette)
+  } else {
+    const palette = display.getPalette()
+    palette[0] = presets?.bgColor ?? DEFAULT_BG
+    palette[1] = presets?.activeColor ?? DEFAULT_ACTIVE
+    display.setPalette(palette)
+  }
+  // Update color pickers to reflect presets
+  bgColorPicker.value = presets?.palette?.[0] ?? presets?.bgColor ?? DEFAULT_BG
+  activeColorPicker.value = presets?.activeColor ?? DEFAULT_ACTIVE
+}
+
 const animations: Record<string, Animation> = {
-  wave, sparkle, text, world, mic,
+  wave, matrix, text, world, eq: mic,
 }
 
 let currentAnim: Animation = wave
@@ -149,6 +167,8 @@ buttons.forEach(btn => {
     if (currentAnim.onStop) currentAnim.onStop()
     currentAnim = animations[name]
     textInputRow.style.display = name === 'text' ? '' : 'none'
+    // Apply presets
+    applyPresets(currentAnim)
     // Start new animation's resources
     if (currentAnim.onStart) currentAnim.onStart(display)
     display.clear()
