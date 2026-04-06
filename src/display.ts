@@ -81,6 +81,18 @@ export class VoxelDisplay {
     }
   }
 
+  setDepth(depth: number): void {
+    this.depth = depth
+  }
+
+  getVoxelHeight(): number {
+    return this.voxelHeight
+  }
+
+  setVoxelHeight(height: number): void {
+    this.voxelHeight = height
+  }
+
   setPalette(palette: string[]): void {
     this.palette = [...palette]
   }
