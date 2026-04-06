@@ -9,23 +9,24 @@ const distanceSlider = document.getElementById('distance') as HTMLInputElement
 const depthSlider = document.getElementById('depth') as HTMLInputElement
 const fpsSlider = document.getElementById('fps') as HTMLInputElement
 const angleSlider = document.getElementById('angle') as HTMLInputElement
+const pitchSlider = document.getElementById('pitch') as HTMLInputElement
 const activeColorPicker = document.getElementById('active-color') as HTMLInputElement
 const showInactiveCheckbox = document.getElementById('show-inactive') as HTMLInputElement
-const opaqueCheckbox = document.getElementById('opaque') as HTMLInputElement
 const cameraSelect = document.getElementById('camera-type') as HTMLSelectElement
 const pixelSizeVal = document.getElementById('pixel-size-val')!
 const distanceVal = document.getElementById('distance-val')!
 const depthVal = document.getElementById('depth-val')!
 const fpsVal = document.getElementById('fps-val')!
 const angleVal = document.getElementById('angle-val')!
+const pitchVal = document.getElementById('pitch-val')!
 
 let currentPixelSize = parseInt(pixelSizeSlider.value)
 let currentDistance = parseInt(distanceSlider.value)
 let currentDepth = parseInt(depthSlider.value)
 let currentFps = parseInt(fpsSlider.value)
 let currentAngle = parseInt(angleSlider.value)
+let currentPitch = parseInt(pitchSlider.value)
 let currentShowInactive = showInactiveCheckbox.checked
-let currentOpaque = opaqueCheckbox.checked
 let currentCameraType = cameraSelect.value as 'oblique' | 'isometric' | 'orthographic'
 
 function createDisplay() {
@@ -34,9 +35,8 @@ function createDisplay() {
     pixelSize: currentPixelSize,
     voxelHeight: currentDistance,
     depth: currentDepth,
-    opaque: currentOpaque,
     showInactive: currentShowInactive,
-    camera: { type: currentCameraType, angle: currentAngle },
+    camera: { type: currentCameraType, angle: currentAngle, pitch: currentPitch },
   })
   const palette = d.getPalette()
   palette[1] = activeColorPicker.value
@@ -84,14 +84,15 @@ angleSlider.addEventListener('input', () => {
   restartAnimation()
 })
 
-
-showInactiveCheckbox.addEventListener('change', () => {
-  currentShowInactive = showInactiveCheckbox.checked
+pitchSlider.addEventListener('input', () => {
+  currentPitch = parseInt(pitchSlider.value)
+  pitchVal.textContent = pitchSlider.value
   restartAnimation()
 })
 
-opaqueCheckbox.addEventListener('change', () => {
-  currentOpaque = opaqueCheckbox.checked
+
+showInactiveCheckbox.addEventListener('change', () => {
+  currentShowInactive = showInactiveCheckbox.checked
   restartAnimation()
 })
 

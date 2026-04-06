@@ -42,7 +42,7 @@ export class VoxelDisplay {
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'oblique', angle: 315 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 315, pitch: 45 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
   }
@@ -91,7 +91,7 @@ export class VoxelDisplay {
 
   render(): string {
     const h = new Heerich({
-      tile: [this.pixelSize, this.voxelHeight, this.pixelSize],
+      tile: this.pixelSize,
       camera: this.camera,
     })
 
@@ -103,9 +103,11 @@ export class VoxelDisplay {
         const idx = this.buffer[y * this.width + x]
         const isOn = idx > 0
         if (!isOn && !this.showInactive) continue
-        // Y axis is vertical (down in SVG). Active pixels stick UP by depth units.
-        const yPos = isOn ? -this.depth : 0
-        const ySize = isOn ? this.depth + 1 : 1
+        // Y axis is vertical (down in SVG). Active pixels stick UP.
+        // voxelHeight is the extrusion Z size in pixels, convert to voxel units.
+        const extrudeUnits = (this.voxelHeight / this.pixelSize) * this.depth
+        const yPos = isOn ? -extrudeUnits : 0
+        const ySize = isOn ? extrudeUnits + 1 : 1
         h.addGeometry({
           type: 'box',
           position: [x, yPos, y] as [number, number, number],

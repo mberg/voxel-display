@@ -105,20 +105,21 @@
         <span class="value" id="angle-val">315</span>
       </label>
       <label>
+        Pitch <input type="range" id="pitch" min="0" max="90" value="45">
+        <span class="value" id="pitch-val">45</span>
+      </label>
+      <label>
         Color <input type="color" id="active-color" value="#00ff41">
       </label>
       <label>
         <input type="checkbox" id="show-inactive" checked> Fill
       </label>
-      <label>
-        <input type="checkbox" id="opaque" checked> Opaque
-      </label>
-      <label>
+<label>
         Camera
         <select id="camera-type">
-          <option value="oblique" selected>Oblique</option>
+          <option value="oblique">Oblique</option>
           <option value="isometric">Isometric</option>
-          <option value="orthographic">Orthographic</option>
+          <option value="orthographic" selected>Orthographic</option>
         </select>
       </label>
     </div>
