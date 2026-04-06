@@ -90,7 +90,8 @@ export const matrix: Animation = {
       }
 
       if (headY - drop.length > height) {
-        drops.splice(i, 1)
+        drops[i] = drops[drops.length - 1]
+        drops.pop()
       }
     }
   },

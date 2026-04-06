@@ -37,12 +37,8 @@ export function darkenHex(hex: string, amount: number): string {
  */
 export function buildFaceStyle(hex: string, opacity: number = 1): Record<string, { fill: string; stroke: string; strokeWidth: number; fillOpacity?: number }> {
   const o = opacity < 1 ? { fillOpacity: opacity } : {}
-  return {
-    default: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
-    top: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
-    left: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
-    right: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
-    front: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5, ...o },
-    back: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5, ...o },
-  }
+  const top = { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o }
+  const side = { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o }
+  const front = { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5, ...o }
+  return { default: top, top, left: side, right: side, front, back: front }
 }

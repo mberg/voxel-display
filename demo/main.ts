@@ -64,6 +64,8 @@ let display = createDisplay()
 function restartAnimation() {
   display.stop()
   display = createDisplay()
+  applyPresets(currentAnim)
+  if (currentAnim.onStart) currentAnim.onStart(display)
   display.run((frame, elapsed) => {
     currentAnim.fn(display, frame, elapsed)
   }, currentFps)

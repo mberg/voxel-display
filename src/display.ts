@@ -34,6 +34,7 @@ export class VoxelDisplay {
   private container: HTMLElement | null
   private buffer: Uint8Array
   private animationId: number | null = null
+  private cachedStyles: ReturnType<typeof buildFaceStyle>[] | null = null
 
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
@@ -86,6 +87,7 @@ export class VoxelDisplay {
 
   setOpacity(opacity: number): void {
     this.opacity = Math.max(0, Math.min(1, opacity))
+    this.cachedStyles = null
   }
 
   setDepth(depth: number): void {
@@ -98,10 +100,12 @@ export class VoxelDisplay {
 
   setVoxelHeight(height: number): void {
     this.voxelHeight = height
+    this.cachedStyles = null
   }
 
   setPalette(palette: string[]): void {
     this.palette = [...palette]
+    this.cachedStyles = null
   }
 
   getPalette(): string[] {
@@ -114,9 +118,10 @@ export class VoxelDisplay {
       camera: this.camera,
     })
 
-    // Pre-compute face styles for each palette entry
-    // Index 0 (inactive) always full opacity, active voxels use current opacity
-    const styles = this.palette.map((color, i) => buildFaceStyle(color, i === 0 ? 1 : this.opacity))
+    if (!this.cachedStyles) {
+      this.cachedStyles = this.palette.map((color, i) => buildFaceStyle(color, i === 0 ? 1 : this.opacity))
+    }
+    const styles = this.cachedStyles
 
     // Anchor voxels at grid corners to keep the viewBox stable across frames.
     // Uses a transparent style so they're invisible but still define the bounding box.

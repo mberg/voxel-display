@@ -3,11 +3,11 @@ import type { Animation } from './types'
 let audioCtx: AudioContext | null = null
 let analyser: AnalyserNode | null = null
 let micStream: MediaStream | null = null
-const freqData = new Uint8Array(1024)
+const freqData = new Uint8Array(512)
 
-// Peak hold state: one peak per column, decays over time
 let peaks: number[] = []
 let peakDecay: number[] = []
+let cachedBands: Array<{ lo: number; hi: number }> | null = null
 
 async function startMic() {
   if (analyser) return
@@ -85,10 +85,12 @@ export const mic: Animation = {
   async onStart() {
     peaks = []
     peakDecay = []
+    cachedBands = null
     await startMic()
   },
   onStop() {
     stopMic()
+    cachedBands = null
   },
   fn(display) {
     display.clear()
@@ -105,7 +107,8 @@ export const mic: Animation = {
       peakDecay = new Array(cols).fill(0)
     }
 
-    const bands = buildBands(cols, binCount, sampleRate)
+    if (!cachedBands) cachedBands = buildBands(cols, binCount, sampleRate)
+    const bands = cachedBands
 
     // Compute overall volume for depth scaling
     let totalSum = 0

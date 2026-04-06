@@ -1,10 +1,16 @@
-import { WORLD_MAP_WIDTH, WORLD_MAP_HEIGHT, WORLD_MAP_DATA } from '../world-map'
+import { WORLD_MAP_WIDTH, WORLD_MAP_HEIGHT, WORLD_MAP_DATA } from './world-map'
 import type { Animation } from './types'
+
+let rendered = false
 
 export const world: Animation = {
   name: 'World Map',
   presets: { bgColor: '#fbf4ea', activeColor: '#f09719' },
+  onStart() {
+    rendered = false
+  },
   fn(display) {
+    if (rendered) return
     display.clear()
     const ox = Math.floor((display.width - WORLD_MAP_WIDTH) / 2)
     const oy = Math.floor((display.height - WORLD_MAP_HEIGHT) / 2)
@@ -15,5 +21,6 @@ export const world: Animation = {
         }
       }
     }
+    rendered = true
   },
 }

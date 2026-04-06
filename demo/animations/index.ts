@@ -1,6 +1,5 @@
-export type { AnimFn, Animation } from './types'
+export type { Animation } from './types'
 export { wave } from './wave'
-export { sparkle } from './sparkle'
 export { text, setTextSource } from './text'
 export { world } from './world'
 export { mic } from './mic'
