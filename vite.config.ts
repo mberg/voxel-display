@@ -4,6 +4,11 @@ import basicSsl from '@vitejs/plugin-basic-ssl'
 
 export default defineConfig({
   root: 'demo',
+  base: '/voxel-display/',
+  build: {
+    outDir: '../dist',
+    emptyOutDir: true,
+  },
   plugins: [basicSsl()],
   server: {
     port: 4321,
