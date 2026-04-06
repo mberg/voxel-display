@@ -60,9 +60,28 @@ function bandAmplitude(lo: number, hi: number): number {
   return sum / count / 255
 }
 
+const EQ_PALETTE = [
+  '#1a1a2e', // 0: dark bg
+  '#00d4ff', // 1: light blue (low)
+  '#ff6600', // 2: orange (mid)
+  '#ff0040', // 3: red (high)
+  '#0099cc', // 4: teal blue
+  '#ff8800', // 5: amber
+  '#cc0033', // 6: deep red
+  '#33bbff', // 7: sky blue
+  '#ff4400', // 8: red-orange
+  '#0066aa', // 9: dark blue
+  '#ff2200', // 10: bright red
+  '#66ddff', // 11: pale blue
+  '#ff5500', // 12: deep orange
+  '#0088dd', // 13: medium blue
+  '#ff0000', // 14: pure red
+  '#ffffff', // 15: white
+]
+
 export const mic: Animation = {
   name: 'EQ',
-  presets: { bgColor: '#1a1a2e' },
+  presets: { palette: EQ_PALETTE },
   async onStart() {
     peaks = []
     peakDecay = []
@@ -117,9 +136,9 @@ export const mic: Animation = {
       for (let y = 0; y < barHeight; y++) {
         const ratio = y / rows
         let color: number
-        if (ratio < 0.33) color = 1       // green
-        else if (ratio < 0.66) color = 4  // yellow
-        else color = 2                     // red
+        if (ratio < 0.33) color = 1       // light blue
+        else if (ratio < 0.66) color = 2  // orange
+        else color = 3                     // red
         display.setPixel(x, y, color)
       }
 

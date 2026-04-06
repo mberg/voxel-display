@@ -78,7 +78,7 @@ export const text: Animation = {
     for (let i = 0; i < str.length; i++) {
       const x = i * charWidth - offset + display.width
       if (x > -charWidth && x < display.width) {
-        const color = (i % 14) + 1
+        const color = 1
         drawChar(display, str[i], x, startY, color)
       }
     }

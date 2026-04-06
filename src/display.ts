@@ -14,6 +14,7 @@ export interface VoxelDisplayOptions {
     pitch?: number
   }
   depth?: number
+  opacity?: number
   opaque?: boolean
   showInactive?: boolean
   container?: HTMLElement
@@ -25,6 +26,7 @@ export class VoxelDisplay {
   private pixelSize: number
   private voxelHeight: number
   private depth: number
+  private opacity: number
   private opaque: boolean
   private showInactive: boolean
   private palette: string[]
@@ -39,10 +41,11 @@ export class VoxelDisplay {
     this.pixelSize = options.pixelSize ?? 8
     this.voxelHeight = options.voxelHeight ?? 20
     this.depth = options.depth ?? 1
+    this.opacity = options.opacity ?? 1
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'orthographic', angle: 0, pitch: 60 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 9, pitch: 60 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
   }
@@ -81,6 +84,10 @@ export class VoxelDisplay {
     }
   }
 
+  setOpacity(opacity: number): void {
+    this.opacity = Math.max(0, Math.min(1, opacity))
+  }
+
   setDepth(depth: number): void {
     this.depth = depth
   }
@@ -108,7 +115,23 @@ export class VoxelDisplay {
     })
 
     // Pre-compute face styles for each palette entry
-    const styles = this.palette.map(color => buildFaceStyle(color))
+    // Index 0 (inactive) always full opacity, active voxels use current opacity
+    const styles = this.palette.map((color, i) => buildFaceStyle(color, i === 0 ? 1 : this.opacity))
+
+    // Anchor voxels at grid corners to keep the viewBox stable across frames.
+    // Uses a transparent style so they're invisible but still define the bounding box.
+    const anchorStyle = { fill: 'none', stroke: 'none', strokeWidth: 0 }
+    const maxExtrude = (this.voxelHeight / this.pixelSize) * this.depth
+    const corners = [[0, 0], [this.width - 1, 0], [0, this.height - 1], [this.width - 1, this.height - 1]]
+    for (const [cx, cy] of corners) {
+      h.addGeometry({
+        type: 'box',
+        position: [cx, -maxExtrude, cy] as [number, number, number],
+        size: [1, maxExtrude + 1, 1] as [number, number, number],
+        style: { default: anchorStyle },
+        opaque: false,
+      })
+    }
 
     for (let y = 0; y < this.height; y++) {
       for (let x = 0; x < this.width; x++) {

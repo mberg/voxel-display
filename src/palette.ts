@@ -35,13 +35,14 @@ export function darkenHex(hex: string, amount: number): string {
  * Build a Heerich face style map from a single hex color.
  * Top = raw color, sides darkened 20%, front darkened 35%.
  */
-export function buildFaceStyle(hex: string): Record<string, { fill: string; stroke: string; strokeWidth: number }> {
+export function buildFaceStyle(hex: string, opacity: number = 1): Record<string, { fill: string; stroke: string; strokeWidth: number; fillOpacity?: number }> {
+  const o = opacity < 1 ? { fillOpacity: opacity } : {}
   return {
-    default: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
-    top: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
-    left: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
-    right: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
-    front: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5 },
-    back: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5 },
+    default: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
+    top: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
+    left: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
+    right: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o },
+    front: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5, ...o },
+    back: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5, ...o },
   }
 }

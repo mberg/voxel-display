@@ -11,6 +11,7 @@ const depthSlider = document.getElementById('depth') as HTMLInputElement
 const fpsSlider = document.getElementById('fps') as HTMLInputElement
 const angleSlider = document.getElementById('angle') as HTMLInputElement
 const pitchSlider = document.getElementById('pitch') as HTMLInputElement
+const opacitySlider = document.getElementById('opacity') as HTMLInputElement
 const activeColorPicker = document.getElementById('active-color') as HTMLInputElement
 const bgColorPicker = document.getElementById('bg-color') as HTMLInputElement
 const showInactiveCheckbox = document.getElementById('show-inactive') as HTMLInputElement
@@ -21,6 +22,7 @@ const depthVal = document.getElementById('depth-val')!
 const fpsVal = document.getElementById('fps-val')!
 const angleVal = document.getElementById('angle-val')!
 const pitchVal = document.getElementById('pitch-val')!
+const opacityVal = document.getElementById('opacity-val')!
 const scrollTextInput = document.getElementById('scroll-text') as HTMLInputElement
 const textInputRow = document.getElementById('text-input-row')!
 
@@ -30,6 +32,7 @@ let currentDepth = parseInt(depthSlider.value)
 let currentFps = parseInt(fpsSlider.value)
 let currentAngle = parseInt(angleSlider.value)
 let currentPitch = parseInt(pitchSlider.value)
+let currentOpacity = parseInt(opacitySlider.value) / 100
 let currentShowInactive = showInactiveCheckbox.checked
 let currentCameraType = cameraSelect.value as 'oblique' | 'isometric' | 'orthographic'
 
@@ -45,6 +48,7 @@ function createDisplay() {
     pixelSize: currentPixelSize,
     voxelHeight: currentDistance,
     depth: currentDepth,
+    opacity: currentOpacity,
     showInactive: currentShowInactive,
     camera: { type: currentCameraType, angle: currentAngle, pitch: currentPitch },
   })
@@ -99,6 +103,12 @@ pitchSlider.addEventListener('input', () => {
   currentPitch = parseInt(pitchSlider.value)
   pitchVal.textContent = pitchSlider.value
   restartAnimation()
+})
+
+opacitySlider.addEventListener('input', () => {
+  currentOpacity = parseInt(opacitySlider.value) / 100
+  opacityVal.textContent = opacitySlider.value
+  display.setOpacity(currentOpacity)
 })
 
 showInactiveCheckbox.addEventListener('change', () => {
