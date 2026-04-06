@@ -17,7 +17,7 @@ export const world: Animation = {
     for (let y = 0; y < WORLD_MAP_HEIGHT; y++) {
       for (let x = 0; x < WORLD_MAP_WIDTH; x++) {
         if (WORLD_MAP_DATA[y * WORLD_MAP_WIDTH + x]) {
-          display.setPixel(ox + x, oy + (WORLD_MAP_HEIGHT - 1 - y), 1)
+          display.setPixel(ox + x, oy + y, 1)
         }
       }
     }

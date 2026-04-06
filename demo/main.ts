@@ -61,50 +61,55 @@ function createDisplay() {
 
 let display = createDisplay()
 
-function restartAnimation() {
+function restartDisplay() {
   display.stop()
+  display.disconnect()
   display = createDisplay()
-  applyPresets(currentAnim)
-  if (currentAnim.onStart) currentAnim.onStart(display)
-  display.run((frame, elapsed) => {
-    currentAnim.fn(display, frame, elapsed)
-  }, currentFps)
+  if (remoteActive) {
+    connectRemote()
+  } else {
+    applyPresets(currentAnim)
+    if (currentAnim.onStart) currentAnim.onStart(display)
+    display.run((frame, elapsed) => {
+      currentAnim.fn(display, frame, elapsed)
+    }, currentFps)
+  }
 }
 
 pixelSizeSlider.addEventListener('input', () => {
   currentPixelSize = parseInt(pixelSizeSlider.value)
   pixelSizeVal.textContent = pixelSizeSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 depthSlider.addEventListener('input', () => {
   currentDepth = parseInt(depthSlider.value)
   depthVal.textContent = depthSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 distanceSlider.addEventListener('input', () => {
   currentDistance = parseInt(distanceSlider.value)
   distanceVal.textContent = distanceSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 fpsSlider.addEventListener('input', () => {
   currentFps = parseInt(fpsSlider.value)
   fpsVal.textContent = fpsSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 angleSlider.addEventListener('input', () => {
   currentAngle = parseInt(angleSlider.value)
   angleVal.textContent = angleSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 pitchSlider.addEventListener('input', () => {
   currentPitch = parseInt(pitchSlider.value)
   pitchVal.textContent = pitchSlider.value
-  restartAnimation()
+  restartDisplay()
 })
 
 opacitySlider.addEventListener('input', () => {
@@ -115,7 +120,7 @@ opacitySlider.addEventListener('input', () => {
 
 showInactiveCheckbox.addEventListener('change', () => {
   currentShowInactive = showInactiveCheckbox.checked
-  restartAnimation()
+  restartDisplay()
 })
 
 const pitchLabel = document.getElementById('pitch-label')!
@@ -128,7 +133,7 @@ updatePitchVisibility()
 cameraSelect.addEventListener('change', () => {
   currentCameraType = cameraSelect.value as 'oblique' | 'isometric' | 'orthographic'
   updatePitchVisibility()
-  restartAnimation()
+  restartDisplay()
 })
 
 activeColorPicker.addEventListener('input', () => {
@@ -169,46 +174,56 @@ const animations: Record<string, Animation> = {
 
 let currentAnim: Animation = wave
 
+const remoteRow = document.getElementById('remote-row')!
+const remoteUrlInput = document.getElementById('remote-url') as HTMLInputElement
+let remoteActive = false
+
+function connectRemote() {
+  const url = remoteUrlInput.value.trim()
+  if (!url) return
+  display.stop()
+  display.connect(url)
+  remoteActive = true
+}
+
+function disconnectRemote() {
+  if (remoteActive) {
+    display.disconnect()
+    remoteActive = false
+  }
+}
+
 const buttons = document.querySelectorAll<HTMLButtonElement>('#animations button')
 buttons.forEach(btn => {
   btn.addEventListener('click', () => {
     buttons.forEach(b => b.classList.remove('active'))
     btn.classList.add('active')
     const name = btn.dataset.anim!
+    // Reset depth to 1 on mode switch
+    currentDepth = 1
+    depthSlider.value = '1'
+    depthVal.textContent = '1'
     // Stop previous animation's resources
+    disconnectRemote()
     if (currentAnim.onStop) currentAnim.onStop()
-    currentAnim = animations[name]
     textInputRow.style.display = name === 'text' ? '' : 'none'
-    // Apply presets
-    applyPresets(currentAnim)
-    // Start new animation's resources
-    if (currentAnim.onStart) currentAnim.onStart(display)
-    display.clear()
+    remoteRow.style.display = name === 'remote' ? '' : 'none'
+    if (name === 'remote') {
+      connectRemote()
+      return
+    }
+    currentAnim = animations[name]
+    restartDisplay()
   })
 })
 
-// --- Remote Source ---
+remoteUrlInput.addEventListener('change', () => {
+  if (remoteActive) connectRemote()
+})
 
-const remoteUrlInput = document.getElementById('remote-url') as HTMLInputElement
 const remoteConnectBtn = document.getElementById('remote-connect') as HTMLButtonElement
-let remoteConnected = false
-
 remoteConnectBtn.addEventListener('click', () => {
-  if (remoteConnected) {
-    display.disconnect()
-    remoteConnected = false
-    remoteConnectBtn.textContent = 'Connect'
-    // Restart the local animation
-    restartAnimation()
-  } else {
-    const url = remoteUrlInput.value.trim()
-    if (!url) return
-    // Stop local animation, connect to remote
-    display.stop()
-    display.connect(url)
-    remoteConnected = true
-    remoteConnectBtn.textContent = 'Disconnect'
-  }
+  connectRemote()
 })
 
 // Start

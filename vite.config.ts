@@ -13,6 +13,13 @@ export default defineConfig({
   server: {
     port: 4321,
     host: true,
+    proxy: {
+      '/proxy': {
+        target: 'http://localhost:5050',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy/, ''),
+      },
+    },
   },
   resolve: {
     alias: {

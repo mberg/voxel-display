@@ -134,7 +134,7 @@ export class VoxelDisplay {
     for (const [cx, cy] of corners) {
       h.addGeometry({
         type: 'box',
-        position: [cx, -maxExtrude, cy] as [number, number, number],
+        position: [cx, -maxExtrude, this.height - 1 - cy] as [number, number, number],
         size: [1, maxExtrude + 1, 1] as [number, number, number],
         style: { default: anchorStyle },
         opaque: false,
@@ -152,7 +152,7 @@ export class VoxelDisplay {
         const ySize = extrudeUnits + 1
         h.addGeometry({
           type: 'box',
-          position: [x, yPos, y] as [number, number, number],
+          position: [x, yPos, this.height - 1 - y] as [number, number, number],
           size: [1, ySize, 1] as [number, number, number],
           style: styles[idx] ?? styles[0],
           opaque: this.opaque,

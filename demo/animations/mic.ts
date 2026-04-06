@@ -135,20 +135,20 @@ export const mic: Animation = {
         }
       }
 
-      // Draw bar
+      // Draw bar from bottom up
       for (let y = 0; y < barHeight; y++) {
         const ratio = y / rows
         let color: number
         if (ratio < 0.33) color = 1       // light blue
         else if (ratio < 0.66) color = 2  // orange
         else color = 3                     // red
-        display.setPixel(x, y, color)
+        display.setPixel(x, rows - 1 - y, color)
       }
 
       // Draw peak dot
       const peakY = peaks[x]
       if (peakY > 0 && peakY < rows) {
-        display.setPixel(x, peakY, 15) // white peak
+        display.setPixel(x, rows - 1 - peakY, 15) // white peak
       }
     }
   },

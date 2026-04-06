@@ -52,7 +52,7 @@ function drawChar(display: VoxelDisplay, char: string, startX: number, startY: n
   for (let row = 0; row < 7; row++) {
     for (let col = 0; col < 5; col++) {
       if (glyph[row] & (1 << (4 - col))) {
-        display.setPixel(startX + col, startY + (6 - row), color)
+        display.setPixel(startX + col, startY + row, color)
       }
     }
   }

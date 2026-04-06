@@ -79,13 +79,13 @@ export const matrix: Animation = {
         if (py < 0 || py >= height) continue
 
         if (j === 0) {
-          display.setPixel(drop.x, height - 1 - py, 15) // white head
+          display.setPixel(drop.x, py, 15) // white head
         } else if (j < 3) {
-          display.setPixel(drop.x, height - 1 - py, 1)  // bright green
+          display.setPixel(drop.x, py, 1)  // bright green
         } else if (j < 6) {
-          display.setPixel(drop.x, height - 1 - py, 2)  // medium green
+          display.setPixel(drop.x, py, 2)  // medium green
         } else {
-          display.setPixel(drop.x, height - 1 - py, 3)  // dark green fade
+          display.setPixel(drop.x, py, 3)  // dark green fade
         }
       }
 

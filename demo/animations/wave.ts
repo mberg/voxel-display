@@ -66,7 +66,7 @@ export const wave: Animation = {
       const waveY = sum / 2 + 0.5
       const h = Math.max(0, Math.min(display.height, Math.floor(waveY * display.height)))
       for (let y = 0; y < h; y++) {
-        display.setPixel(x, y, 1)
+        display.setPixel(x, display.height - 1 - y, 1)
       }
     }
   },

@@ -139,12 +139,13 @@
     <button data-anim="text">Scrolling Text</button>
     <button data-anim="world">World Map</button>
     <button data-anim="eq">EQ</button>
+    <button data-anim="remote">Remote</button>
   </div>
-  <div id="remote-row" style="margin-top:1rem;">
+  <div id="remote-row" style="display:none; margin-top:1rem;">
     <label style="font-size:0.9rem; color:#666;">
-      Remote URL <input type="text" id="remote-url" placeholder="https://..." style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">
+      URL <input type="text" id="remote-url" placeholder="http://localhost:5000/active.webp" style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">
     </label>
-    <button id="remote-connect" style="background:#fff; color:#333; border:1px solid #333; padding:0.4rem 1rem; cursor:pointer; font-family:monospace; font-size:0.9rem; margin-left:0.5rem;">Connect</button>
+    <button id="remote-connect" style="background:#fff; color:#333; border:1px solid #333; padding:0.3rem 0.8rem; cursor:pointer; font-family:monospace; font-size:0.9rem; margin-left:0.5rem;">Connect</button>
   </div>
   <div id="text-input-row" style="display:none; margin-top:1rem;">
     <label style="font-size:0.9rem; color:#666;">
