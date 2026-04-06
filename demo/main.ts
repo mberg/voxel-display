@@ -1,4 +1,5 @@
 import { VoxelDisplay } from 'voxel-display'
+import { WORLD_MAP_WIDTH, WORLD_MAP_HEIGHT, WORLD_MAP_DATA } from './world-map'
 
 const container = document.getElementById('display')!
 
@@ -236,6 +237,19 @@ function textAnimation(frame: number, _elapsed: number) {
   }
 }
 
+function worldMapAnimation(_frame: number, _elapsed: number) {
+  display.clear()
+  const ox = Math.floor((display.width - WORLD_MAP_WIDTH) / 2)
+  const oy = Math.floor((display.height - WORLD_MAP_HEIGHT) / 2)
+  for (let y = 0; y < WORLD_MAP_HEIGHT; y++) {
+    for (let x = 0; x < WORLD_MAP_WIDTH; x++) {
+      if (WORLD_MAP_DATA[y * WORLD_MAP_WIDTH + x]) {
+        display.setPixel(ox + x, oy + (WORLD_MAP_HEIGHT - 1 - y), 1)
+      }
+    }
+  }
+}
+
 // --- Animation switching ---
 
 type AnimFn = (frame: number, elapsed: number) => void
@@ -243,6 +257,7 @@ const animations: Record<string, AnimFn> = {
   wave: waveAnimation,
   sparkle: sparkleAnimation,
   text: textAnimation,
+  world: worldMapAnimation,
 }
 
 let currentAnim: AnimFn = waveAnimation
