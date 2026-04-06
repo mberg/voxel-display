@@ -121,7 +121,7 @@ export class VoxelDisplay {
     // Anchor voxels at grid corners to keep the viewBox stable across frames.
     // Uses a transparent style so they're invisible but still define the bounding box.
     const anchorStyle = { fill: 'none', stroke: 'none', strokeWidth: 0 }
-    const maxExtrude = (this.voxelHeight / this.pixelSize) * this.depth
+    const maxExtrude = (this.voxelHeight / this.pixelSize) * 5
     const corners = [[0, 0], [this.width - 1, 0], [0, this.height - 1], [this.width - 1, this.height - 1]]
     for (const [cx, cy] of corners) {
       h.addGeometry({
