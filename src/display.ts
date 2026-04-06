@@ -4,21 +4,29 @@ import { defaultPalette, buildFaceStyle } from './palette.js'
 export interface VoxelDisplayOptions {
   width?: number
   height?: number
-  tile?: number
+  pixelSize?: number
+  voxelHeight?: number
   palette?: string[]
   camera?: {
     type?: 'oblique' | 'perspective' | 'orthographic' | 'isometric'
     angle?: number
-    pitch?: number
     distance?: number
+    pitch?: number
   }
+  depth?: number
+  opaque?: boolean
+  showInactive?: boolean
   container?: HTMLElement
 }
 
 export class VoxelDisplay {
   readonly width: number
   readonly height: number
-  private tile: number
+  private pixelSize: number
+  private voxelHeight: number
+  private depth: number
+  private opaque: boolean
+  private showInactive: boolean
   private palette: string[]
   private camera: VoxelDisplayOptions['camera']
   private container: HTMLElement | null
@@ -28,9 +36,13 @@ export class VoxelDisplay {
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
     this.height = options.height ?? 32
-    this.tile = options.tile ?? 8
+    this.pixelSize = options.pixelSize ?? 8
+    this.voxelHeight = options.voxelHeight ?? 10
+    this.depth = options.depth ?? 1
+    this.opaque = options.opaque ?? true
+    this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'isometric', angle: 45 }
+    this.camera = options.camera ?? { type: 'oblique', angle: 315 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
   }
@@ -79,7 +91,7 @@ export class VoxelDisplay {
 
   render(): string {
     const h = new Heerich({
-      tile: this.tile,
+      tile: [this.pixelSize, this.voxelHeight, this.pixelSize],
       camera: this.camera,
     })
 
@@ -90,16 +102,30 @@ export class VoxelDisplay {
       for (let x = 0; x < this.width; x++) {
         const idx = this.buffer[y * this.width + x]
         const isOn = idx > 0
+        if (!isOn && !this.showInactive) continue
+        // Y axis is vertical (down in SVG). Active pixels stick UP by depth units.
+        const yPos = isOn ? -this.depth : 0
+        const ySize = isOn ? this.depth + 1 : 1
         h.addGeometry({
           type: 'box',
-          position: [x, 0, y] as [number, number, number],
-          size: [1, isOn ? 2 : 1, 1] as [number, number, number],
+          position: [x, yPos, y] as [number, number, number],
+          size: [1, ySize, 1] as [number, number, number],
           style: styles[idx] ?? styles[0],
+          opaque: this.opaque,
         })
       }
     }
 
-    return h.toSVG({ padding: 10 })
+    let svg = h.toSVG({ padding: 10 })
+    // Heerich sets style="width:100%; height:100%" which prevents actual sizing
+    svg = svg.replace('style="width:100%; height:100%;"', '')
+    // Set explicit width/height from viewBox so 1 SVG unit = 1 screen pixel
+    const vbMatch = svg.match(/viewBox="([^"]*)"/)
+    if (vbMatch) {
+      const parts = vbMatch[1].split(' ')
+      return svg.replace('<svg', `<svg width="${parts[2]}" height="${parts[3]}"`)
+    }
+    return svg
   }
 
   renderTo(el?: HTMLElement): void {

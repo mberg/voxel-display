@@ -1,5 +1,5 @@
 export const defaultPalette: string[] = [
-  '#1a1a2e', // 0: off
+  '#fbf4ea', // 0: off
   '#00ff41', // 1: green
   '#ff0040', // 2: red
   '#00d4ff', // 3: cyan
@@ -37,8 +37,11 @@ export function darkenHex(hex: string, amount: number): string {
  */
 export function buildFaceStyle(hex: string): Record<string, { fill: string; stroke: string; strokeWidth: number }> {
   return {
-    default: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5 },
-    top: { fill: hex, stroke: darkenHex(hex, 0.3), strokeWidth: 0.5 },
-    front: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.55), strokeWidth: 0.5 },
+    default: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
+    top: { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
+    left: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
+    right: { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5 },
+    front: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5 },
+    back: { fill: darkenHex(hex, 0.35), stroke: darkenHex(hex, 0.5), strokeWidth: 0.5 },
   }
 }

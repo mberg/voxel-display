@@ -7,8 +7,8 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      background: #0a0a1a;
-      color: #ccc;
+      background: #f5f0e8;
+      color: #333;
       font-family: monospace;
       display: flex;
       flex-direction: column;
@@ -16,47 +16,124 @@
       padding: 2rem;
       min-height: 100vh;
     }
-    h1 { color: #00ff41; margin-bottom: 1rem; }
-    #controls {
+    h1 { color: #333; margin-bottom: 1rem; }
+    #toolbar {
+      display: flex;
+      gap: 1.5rem;
+      margin-bottom: 1rem;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    #animations {
       display: flex;
       gap: 0.5rem;
-      margin-bottom: 1rem;
     }
-    #controls button {
-      background: #1a1a2e;
-      color: #00ff41;
-      border: 1px solid #00ff41;
+    #animations button {
+      background: #fff;
+      color: #333;
+      border: 1px solid #333;
       padding: 0.4rem 1rem;
       cursor: pointer;
       font-family: monospace;
       font-size: 0.9rem;
     }
-    #controls button.active {
-      background: #00ff41;
-      color: #0a0a1a;
+    #animations button.active {
+      background: #333;
+      color: #fff;
     }
-    #controls button:hover {
-      background: #00ff41;
-      color: #0a0a1a;
+    #animations button:hover {
+      background: #333;
+      color: #fff;
+    }
+    #settings {
+      display: flex;
+      gap: 1rem;
+      align-items: center;
+    }
+    #settings label {
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    #settings input[type="range"] {
+      width: 80px;
+      accent-color: #333;
+    }
+    #settings select {
+      background: #fff;
+      color: #333;
+      border: 1px solid #333;
+      padding: 0.2rem 0.4rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+    }
+    .value {
+      color: #333;
+      min-width: 2ch;
+      text-align: right;
     }
     #display {
-      max-width: 100%;
       overflow: auto;
-    }
-    #display svg {
-      max-width: 100%;
-      height: auto;
     }
   </style>
 </head>
 <body>
   <h1>Voxel Display</h1>
-  <div id="controls">
+  <div id="toolbar">
+    <div id="settings">
+      <label>
+        Pixel Size <input type="range" id="pixel-size" min="2" max="40" value="20">
+        <span class="value" id="pixel-size-val">20</span>
+      </label>
+      <label>
+        Height <input type="range" id="distance" min="0" max="50" value="15">
+        <span class="value" id="distance-val">15</span>
+      </label>
+      <label>
+        Depth <input type="range" id="depth" min="1" max="5" value="1">
+        <span class="value" id="depth-val">1</span>
+      </label>
+      <label>
+        FPS <input type="range" id="fps" min="1" max="30" value="10">
+        <span class="value" id="fps-val">10</span>
+      </label>
+      <label>
+        Angle <input type="range" id="angle" min="0" max="360" value="315">
+        <span class="value" id="angle-val">315</span>
+      </label>
+      <label>
+        Color <input type="color" id="active-color" value="#00ff41">
+      </label>
+      <label>
+        <input type="checkbox" id="show-inactive" checked> Fill
+      </label>
+      <label>
+        <input type="checkbox" id="opaque" checked> Opaque
+      </label>
+      <label>
+        Camera
+        <select id="camera-type">
+          <option value="oblique" selected>Oblique</option>
+          <option value="isometric">Isometric</option>
+          <option value="orthographic">Orthographic</option>
+        </select>
+      </label>
+    </div>
+  </div>
+  <div id="display"></div>
+  <div id="animations" style="margin-top:1rem;">
     <button data-anim="wave" class="active">Wave</button>
     <button data-anim="sparkle">Sparkle</button>
     <button data-anim="text">Scrolling Text</button>
   </div>
-  <div id="display"></div>
+  <div id="text-input-row" style="display:none; margin-top:1rem;">
+    <label style="font-size:0.9rem; color:#666;">
+      Text <input type="text" id="scroll-text" value="HELLO VOXEL " style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">
+    </label>
+  </div>
   <script type="module" src="./main.ts"></script>
 </body>
 </html>
