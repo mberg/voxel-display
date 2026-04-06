@@ -1,5 +1,6 @@
 import { Heerich } from 'heerich'
 import { defaultPalette, buildFaceStyle } from './palette.js'
+import { decodeImageUrl } from './remote.js'
 
 export interface VoxelDisplayOptions {
   width?: number
@@ -35,6 +36,8 @@ export class VoxelDisplay {
   private buffer: Uint8Array
   private animationId: number | null = null
   private cachedStyles: ReturnType<typeof buildFaceStyle>[] | null = null
+  private pollTimer: ReturnType<typeof setInterval> | null = null
+  private remoteAnimationId: number | null = null
 
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
@@ -199,6 +202,44 @@ export class VoxelDisplay {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId)
       this.animationId = null
+    }
+  }
+
+  async loadImage(url: string): Promise<void> {
+    const { palette, buffer } = await decodeImageUrl(url, this.width, this.height)
+    this.setPalette(palette)
+    this.buffer = buffer
+    this.renderTo()
+  }
+
+  connect(url: string, options?: { interval?: number }): void {
+    this.disconnect()
+    this.stop()
+    const interval = options?.interval ?? 500
+
+    const poll = async () => {
+      try {
+        const { palette, buffer } = await decodeImageUrl(url, this.width, this.height)
+        this.setPalette(palette)
+        this.buffer = buffer
+        this.renderTo()
+      } catch {
+        // Keep last frame on error
+      }
+    }
+
+    poll()
+    this.pollTimer = setInterval(poll, interval)
+  }
+
+  disconnect(): void {
+    if (this.pollTimer !== null) {
+      clearInterval(this.pollTimer)
+      this.pollTimer = null
+    }
+    if (this.remoteAnimationId !== null) {
+      cancelAnimationFrame(this.remoteAnimationId)
+      this.remoteAnimationId = null
     }
   }
 }
