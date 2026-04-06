@@ -6,7 +6,7 @@ export interface VoxelDisplayOptions {
   width?: number
   height?: number
   pixelSize?: number
-  voxelHeight?: number
+  extrudeHeight?: number
   palette?: string[]
   camera?: {
     type?: 'oblique' | 'perspective' | 'orthographic' | 'isometric'
@@ -25,7 +25,7 @@ export class VoxelDisplay {
   readonly width: number
   readonly height: number
   private pixelSize: number
-  private voxelHeight: number
+  private extrudeHeight: number
   private depth: number
   private opacity: number
   private opaque: boolean
@@ -43,7 +43,7 @@ export class VoxelDisplay {
     this.width = options.width ?? 64
     this.height = options.height ?? 32
     this.pixelSize = options.pixelSize ?? 8
-    this.voxelHeight = options.voxelHeight ?? 20
+    this.extrudeHeight = options.extrudeHeight ?? 20
     this.depth = options.depth ?? 1
     this.opacity = options.opacity ?? 1
     this.opaque = options.opaque ?? true
@@ -98,11 +98,11 @@ export class VoxelDisplay {
   }
 
   getVoxelHeight(): number {
-    return this.voxelHeight
+    return this.extrudeHeight
   }
 
   setVoxelHeight(height: number): void {
-    this.voxelHeight = height
+    this.extrudeHeight = height
     this.cachedStyles = null
   }
 
@@ -117,7 +117,7 @@ export class VoxelDisplay {
 
   render(): string {
     const h = new Heerich({
-      tile: [this.pixelSize, this.voxelHeight, this.pixelSize],
+      tile: [this.pixelSize, Math.max(1, this.extrudeHeight), this.pixelSize],
       camera: this.camera,
     })
 
@@ -146,10 +146,10 @@ export class VoxelDisplay {
         const idx = this.buffer[y * this.width + x]
         const isOn = idx > 0
         if (!isOn && !this.showInactive) continue
-        // All voxels share the same base at Y=0. Active ones extrude upward (negative Y).
+        const baseHeight = this.pixelSize / Math.max(1, this.extrudeHeight)
         const extrudeUnits = isOn ? this.depth : 0
         const yPos = -extrudeUnits
-        const ySize = extrudeUnits + 1
+        const ySize = extrudeUnits + baseHeight
         h.addGeometry({
           type: 'box',
           position: [x, yPos, this.height - 1 - y] as [number, number, number],

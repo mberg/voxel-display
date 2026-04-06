@@ -46,7 +46,7 @@ function createDisplay() {
   const d = new VoxelDisplay({
     container,
     pixelSize: currentPixelSize,
-    voxelHeight: currentDistance,
+    extrudeHeight: currentDistance,
     depth: currentDepth,
     opacity: currentOpacity,
     showInactive: currentShowInactive,
