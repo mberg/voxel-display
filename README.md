@@ -2,7 +2,7 @@
 
 A 2D framebuffer rendered as 3D voxels using SVG. Built on [heerich](https://github.com/meodai/heerich).
 
-**[Live Demo](https://recodelabs.github.io/voxel-display/)**
+**[Live Demo](https://mberg.github.io/voxel-display/)**
 
 ## Install
 
