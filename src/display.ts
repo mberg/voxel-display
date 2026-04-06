@@ -46,7 +46,7 @@ export class VoxelDisplay {
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'orthographic', angle: 9, pitch: 60 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 6, pitch: 60 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
   }
