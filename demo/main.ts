@@ -187,6 +187,30 @@ buttons.forEach(btn => {
   })
 })
 
+// --- Remote Source ---
+
+const remoteUrlInput = document.getElementById('remote-url') as HTMLInputElement
+const remoteConnectBtn = document.getElementById('remote-connect') as HTMLButtonElement
+let remoteConnected = false
+
+remoteConnectBtn.addEventListener('click', () => {
+  if (remoteConnected) {
+    display.disconnect()
+    remoteConnected = false
+    remoteConnectBtn.textContent = 'Connect'
+    // Restart the local animation
+    restartAnimation()
+  } else {
+    const url = remoteUrlInput.value.trim()
+    if (!url) return
+    // Stop local animation, connect to remote
+    display.stop()
+    display.connect(url)
+    remoteConnected = true
+    remoteConnectBtn.textContent = 'Disconnect'
+  }
+})
+
 // Start
 display.run((frame, elapsed) => {
   currentAnim.fn(display, frame, elapsed)
