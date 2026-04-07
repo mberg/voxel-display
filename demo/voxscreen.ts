@@ -14,13 +14,26 @@ const pitch = parseInt(params.get('pitch') ?? '60')
 const fps = parseInt(params.get('fps') ?? '10')
 const interval = parseInt(params.get('interval') ?? '500')
 
+const container = document.getElementById('display')!
+
 const display = new VoxelDisplay({
-  container: document.getElementById('display')!,
+  container,
   pixelSize,
   extrudeHeight,
   depth,
   camera: { type: 'orthographic', angle, pitch },
 })
+
+// Scale SVG to fill the viewport
+const observer = new MutationObserver(() => {
+  const svg = container.querySelector('svg')
+  if (!svg) return
+  svg.removeAttribute('width')
+  svg.removeAttribute('height')
+  svg.style.width = '100vw'
+  svg.style.height = '100vh'
+})
+observer.observe(container, { childList: true, subtree: true })
 
 const animations: Record<string, Animation> = {
   wave, matrix, text, world, eq: mic, webcam: cam, qrcode: qr,

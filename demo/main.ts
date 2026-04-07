@@ -254,6 +254,12 @@ remoteConnectBtn.addEventListener('click', () => {
   connectRemote()
 })
 
+const remoteFullscreenLink = document.getElementById('remote-fullscreen') as HTMLAnchorElement
+remoteUrlInput.addEventListener('input', () => {
+  const url = remoteUrlInput.value.trim()
+  remoteFullscreenLink.href = `voxscreen.html?url=${encodeURIComponent(url)}`
+})
+
 // Start with wave animation
 waveInputRow.style.display = ''
 display.run((frame, elapsed) => {
