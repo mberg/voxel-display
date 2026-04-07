@@ -159,6 +159,11 @@ function applyPresets(anim: Animation) {
   // Update color pickers to reflect presets
   bgColorPicker.value = presets?.palette?.[0] ?? presets?.bgColor ?? DEFAULT_BG
   activeColorPicker.value = presets?.activeColor ?? DEFAULT_ACTIVE
+  // Apply FPS preset, default 10
+  const fps = presets?.fps ?? 10
+  currentFps = fps
+  fpsSlider.value = String(fps)
+  fpsVal.textContent = String(fps)
 }
 
 const animations: Record<string, Animation> = {
@@ -219,7 +224,7 @@ remoteConnectBtn.addEventListener('click', () => {
   connectRemote()
 })
 
-// Start
+// Start with wave animation
 display.run((frame, elapsed) => {
   currentAnim.fn(display, frame, elapsed)
 }, currentFps)

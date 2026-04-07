@@ -81,7 +81,7 @@ const EQ_PALETTE = [
 
 export const mic: Animation = {
   name: 'EQ',
-  presets: { palette: EQ_PALETTE },
+  presets: { palette: EQ_PALETTE, fps: 30 },
   async onStart() {
     peaks = []
     peakDecay = []

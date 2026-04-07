@@ -39,7 +39,7 @@ initWaves()
 
 export const wave: Animation = {
   name: 'Wave',
-  presets: { bgColor: '#fbf4ea', activeColor: '#f09719' },
+  presets: { bgColor: '#fbf4ea', activeColor: '#f09719', fps: 10 },
   onStart() {
     initWaves()
   },

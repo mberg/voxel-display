@@ -5,7 +5,7 @@ let rendered = false
 
 export const world: Animation = {
   name: 'World Map',
-  presets: { bgColor: '#fbf4ea', activeColor: '#f09719' },
+  presets: { bgColor: '#fbf4ea', activeColor: '#f09719', fps: 10 },
   onStart() {
     rendered = false
   },

@@ -45,7 +45,7 @@ function initDrops(width: number, height: number) {
 
 export const matrix: Animation = {
   name: 'Matrix',
-  presets: { palette: MATRIX_PALETTE },
+  presets: { palette: MATRIX_PALETTE, fps: 5 },
   onStart(display: VoxelDisplay) {
     display.clear()
     initDrops(display.width, display.height)

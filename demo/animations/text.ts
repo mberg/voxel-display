@@ -66,7 +66,7 @@ export function setTextSource(fn: () => string) {
 
 export const text: Animation = {
   name: 'Scrolling Text',
-  presets: { bgColor: '#fbf4ea' },
+  presets: { bgColor: '#fbf4ea', fps: 10 },
   fn(display, frame) {
     display.clear()
     const str = getText()
