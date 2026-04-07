@@ -149,6 +149,12 @@
     </label>
     <button id="remote-connect" style="background:#fff; color:#333; border:1px solid #333; padding:0.3rem 0.8rem; cursor:pointer; font-family:monospace; font-size:0.9rem; margin-left:0.5rem;">Connect</button>
   </div>
+  <div id="wave-input-row" style="display:none; margin-top:1rem;">
+    <label style="font-size:0.9rem; color:#666;">
+      Frequency <input type="range" id="wave-freq" min="1" max="30" value="10" style="width:120px; accent-color:#333;">
+      <span class="value" id="wave-freq-val">10</span>
+    </label>
+  </div>
   <div id="qr-input-row" style="display:none; margin-top:1rem;">
     <label style="font-size:0.9rem; color:#666;">
       URL <input type="text" id="qr-text" value="https://mberg.github.io/voxel-display/" style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">

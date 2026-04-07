@@ -1,5 +1,5 @@
 import { VoxelDisplay } from 'voxel-display'
-import { wave, matrix, text, setTextSource, world, mic, cam, qr, setQrSource, type Animation } from './animations'
+import { wave, setWaveFreq, matrix, text, setTextSource, world, mic, cam, qr, setQrSource, type Animation } from './animations'
 
 const container = document.getElementById('display')!
 
@@ -45,6 +45,17 @@ const qrInputRow = document.getElementById('qr-input-row')!
 const qrTextInput = document.getElementById('qr-text') as HTMLInputElement
 setQrSource(() => qrTextInput.value || 'https://mberg.github.io/voxel-display/')
 
+// Wire up wave frequency input
+const waveInputRow = document.getElementById('wave-input-row')!
+const waveFreqSlider = document.getElementById('wave-freq') as HTMLInputElement
+const waveFreqVal = document.getElementById('wave-freq-val')!
+waveFreqSlider.addEventListener('input', () => {
+  const val = parseInt(waveFreqSlider.value)
+  waveFreqVal.textContent = String(val)
+  setWaveFreq(val / 100)
+})
+setWaveFreq(parseInt(waveFreqSlider.value) / 100)
+
 function createDisplay() {
   const d = new VoxelDisplay({
     container,
@@ -63,14 +74,14 @@ function createDisplay() {
 
 let display = createDisplay()
 
-function restartDisplay() {
+function restartDisplay(applyAnimPresets = false) {
   display.stop()
   display.disconnect()
   display = createDisplay()
   if (remoteActive) {
     connectRemote()
   } else {
-    applyPresets(currentAnim)
+    if (applyAnimPresets) applyPresets(currentAnim)
     if (currentAnim.onStart) currentAnim.onStart(display)
     display.run((frame, elapsed) => {
       currentAnim.fn(display, frame, elapsed)
@@ -222,6 +233,7 @@ buttons.forEach(btn => {
     disconnectRemote()
     if (currentAnim.onStop) currentAnim.onStop()
     textInputRow.style.display = name === 'text' ? '' : 'none'
+    waveInputRow.style.display = name === 'wave' ? '' : 'none'
     qrInputRow.style.display = name === 'qrcode' ? '' : 'none'
     remoteRow.style.display = name === 'remote' ? '' : 'none'
     if (name === 'remote') {
@@ -229,7 +241,7 @@ buttons.forEach(btn => {
       return
     }
     currentAnim = animations[name]
-    restartDisplay()
+    restartDisplay(true)
   })
 })
 
@@ -243,6 +255,7 @@ remoteConnectBtn.addEventListener('click', () => {
 })
 
 // Start with wave animation
+waveInputRow.style.display = ''
 display.run((frame, elapsed) => {
   currentAnim.fn(display, frame, elapsed)
 }, currentFps)
