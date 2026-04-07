@@ -1,4 +1,4 @@
-# voxel-display
+# Voxel Display
 
 A 2D framebuffer rendered as 3D voxels using SVG. Built on [heerich](https://github.com/meodai/heerich).
 
