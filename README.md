@@ -39,7 +39,7 @@ npm install voxel-display
 |---|---|---|---|
 | `width` | `number` | `64` | Grid width in pixels |
 | `height` | `number` | `32` | Grid height in pixels |
-| `pixelSize` | `number` | `8` | X and Y size of each voxel face (always square) |
+| `pixelSize` | `number` | `18` | Size of each voxel face in screen pixels (always square) |
 | `extrudeHeight` | `number` | `20` | Extrusion height per depth unit |
 | `depth` | `number` | `1` | How many units active pixels extrude upward |
 | `palette` | `string[]` | 16-color default | Array of hex colors, index 0 = inactive |
@@ -61,6 +61,7 @@ npm install voxel-display
 
 ```ts
 display.setPixel(x, y, colorIndex)  // Set a pixel to a palette color
+display.setPixel(x, y, colorIndex, depth) // Set pixel with per-pixel depth
 display.getPixel(x, y)              // Get palette index at position
 display.clear()                      // Clear all pixels to 0
 display.fill(colorIndex)             // Fill all pixels with a color
@@ -112,6 +113,21 @@ display.disconnect()
 
 The image is decoded via canvas, colors are extracted exactly, and the display palette is rebuilt each frame.
 
+### WebSocket Support
+
+For lower latency, connect to a WebSocket server that pushes frames. Compatible with [Pixlet](https://github.com/tronbyt/pixlet)'s WebSocket protocol:
+
+```ts
+// Connect to a Pixlet WebSocket (pushes base64 WebP frames)
+display.connectWebSocket('wss://example.com/api/v1/ws')
+
+// Also accepts raw binary image blobs
+display.connectWebSocket('wss://example.com/stream')
+
+// Disconnect
+display.disconnect()
+```
+
 ### Tidbyt / Pixlet Compatible
 
 Voxel Display uses the same 64x32 pixel resolution as [Tidbyt](https://tidbyt.com) devices. You can use [Pixlet](https://github.com/tronbyt/pixlet) to create content and serve it directly to a voxel display:
@@ -120,8 +136,11 @@ Voxel Display uses the same 64x32 pixel resolution as [Tidbyt](https://tidbyt.co
 # Start a pixlet server
 pixlet serve my_app.star
 
-# In the browser, connect voxel display to:
-# /api/v1/preview.webp (or the full URL of your pixlet server)
+# Poll the preview endpoint
+display.connect('http://localhost:8080/api/v1/preview.webp')
+
+# Or use WebSocket for real-time updates
+display.connectWebSocket('ws://localhost:8080/api/v1/ws')
 ```
 
 Any Pixlet app that runs on a Tidbyt will render on a voxel display.
@@ -163,8 +182,9 @@ The default palette has 16 colors (index 0 is inactive/background):
 
 ```bash
 npm install
-npm run dev     # Start dev server at https://localhost:4321
-npm run build   # Build demo for production
+npm run dev       # Start dev server at https://localhost:4321
+npm run build     # Build demo for production
+npm run build:lib # Build library for npm publishing
 ```
 
 ## License

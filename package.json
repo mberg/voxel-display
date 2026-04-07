@@ -1,18 +1,50 @@
 {
   "name": "voxel-display",
-  "version": "0.0.1",
-  "private": true,
+  "version": "0.1.0",
+  "description": "A 2D pixel framebuffer rendered as 3D voxels in SVG. Tidbyt compatible (64x32).",
   "type": "module",
+  "main": "dist/lib/index.js",
+  "module": "dist/lib/index.js",
+  "types": "dist/lib/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/lib/index.js",
+      "types": "./dist/lib/index.d.ts"
+    }
+  },
+  "files": [
+    "dist/lib",
+    "src"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build"
+    "build": "vite build",
+    "build:lib": "tsc -p tsconfig.lib.json",
+    "prepublishOnly": "npm run build:lib"
   },
+  "keywords": [
+    "voxel",
+    "pixel",
+    "display",
+    "svg",
+    "3d",
+    "tidbyt",
+    "pixlet",
+    "led-matrix"
+  ],
+  "author": "Matthew Berg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mberg/voxel-display.git"
+  },
+  "homepage": "https://mberg.github.io/voxel-display/",
   "dependencies": {
-    "heerich": "^0.10.0",
-    "qrcode-generator": "^2.0.4"
+    "heerich": "^0.10.0"
   },
   "devDependencies": {
     "@vitejs/plugin-basic-ssl": "^2.3.0",
+    "qrcode-generator": "^2.0.4",
     "typescript": "^6.0.2",
     "vite": "^8.0.5"
   }

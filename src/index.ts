@@ -1,3 +1,5 @@
-export { VoxelDisplay } from './display.js'
-export type { VoxelDisplayOptions } from './display.js'
+export { VoxelDisplay } from './voxel-display.js'
+export type { VoxelDisplayOptions, CameraOptions, ConnectOptions } from './voxel-display.js'
 export { defaultPalette, darkenHex, buildFaceStyle } from './palette.js'
+export type { DecodedFrame } from './remote.js'
+export { decodeImageUrl, decodeBase64Image, decodeImageBlob } from './remote.js'

@@ -1,28 +1,75 @@
 import { Heerich } from 'heerich'
 import { defaultPalette, buildFaceStyle } from './palette.js'
-import { decodeImageUrl } from './remote.js'
+import { decodeImageUrl, decodeBase64Image } from './remote.js'
 
+/** Camera projection settings for the 3D voxel view. */
+export interface CameraOptions {
+  /** Projection type. */
+  type?: 'oblique' | 'perspective' | 'orthographic' | 'isometric'
+  /** Horizontal rotation in degrees. */
+  angle?: number
+  /** Oblique recession amount. */
+  distance?: number
+  /** Vertical tilt (0 = side view, 90 = top-down). Orthographic only. */
+  pitch?: number
+}
+
+/** Options for creating a VoxelDisplay instance. */
 export interface VoxelDisplayOptions {
+  /** Grid width in pixels. Default: 64 */
   width?: number
+  /** Grid height in pixels. Default: 32 */
   height?: number
+  /** Size of each voxel face in screen pixels (always square). Default: 18 */
   pixelSize?: number
+  /** Height of each extrusion layer in screen pixels. Default: 20 */
   extrudeHeight?: number
+  /** Array of hex color strings. Index 0 is the background/inactive color. */
   palette?: string[]
-  camera?: {
-    type?: 'oblique' | 'perspective' | 'orthographic' | 'isometric'
-    angle?: number
-    distance?: number
-    pitch?: number
-  }
+  /** Camera projection settings. */
+  camera?: CameraOptions
+  /** Number of voxel layers active pixels extrude. Default: 1 */
   depth?: number
+  /** Opacity of active voxels (0–1). Default: 1 */
   opacity?: number
+  /** Whether voxels occlude neighbors behind them. Default: true */
   opaque?: boolean
+  /** Whether to render inactive (index 0) pixels. Default: true */
   showInactive?: boolean
+  /** DOM element to render into. */
   container?: HTMLElement
 }
 
+/** Options for the {@link VoxelDisplay.connect} method. */
+export interface ConnectOptions {
+  /** Polling interval in milliseconds. Default: 500 */
+  interval?: number
+}
+
+/**
+ * A 2D pixel framebuffer rendered as 3D voxels in SVG.
+ *
+ * The display uses a 64×32 grid by default (matching Tidbyt dimensions).
+ * Each pixel maps to a colored voxel that can extrude upward based on
+ * depth settings. The coordinate system uses screen conventions: y=0 is
+ * the top row, y increases downward.
+ *
+ * @example
+ * ```ts
+ * const display = new VoxelDisplay({
+ *   container: document.getElementById('display'),
+ *   width: 64,
+ *   height: 32,
+ * })
+ *
+ * display.setPixel(10, 5, 1)
+ * display.renderTo()
+ * ```
+ */
 export class VoxelDisplay {
+  /** Grid width in pixels. */
   readonly width: number
+  /** Grid height in pixels. */
   readonly height: number
   private pixelSize: number
   private extrudeHeight: number
@@ -31,7 +78,7 @@ export class VoxelDisplay {
   private opaque: boolean
   private showInactive: boolean
   private palette: string[]
-  private camera: VoxelDisplayOptions['camera']
+  private camera: CameraOptions
   private container: HTMLElement | null
   private buffer: Uint8Array
   private depthBuffer: Uint8Array
@@ -39,6 +86,7 @@ export class VoxelDisplay {
   private cachedStyles: ReturnType<typeof buildFaceStyle>[] | null = null
   private pollTimer: ReturnType<typeof setInterval> | null = null
   private remoteAnimationId: number | null = null
+  private ws: WebSocket | null = null
 
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
@@ -56,6 +104,19 @@ export class VoxelDisplay {
     this.depthBuffer = new Uint8Array(this.width * this.height)
   }
 
+  // ---------------------------------------------------------------------------
+  // Framebuffer
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Set a pixel's color (and optionally its per-pixel extrusion depth).
+   * Out-of-bounds coordinates are silently ignored.
+   *
+   * @param x - Column (0 = left).
+   * @param y - Row (0 = top).
+   * @param colorIndex - Palette index (0 = inactive/background).
+   * @param depth - Per-pixel extrusion depth. Overrides the global depth for this pixel.
+   */
   setPixel(x: number, y: number, colorIndex: number, depth?: number): void {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return
     this.buffer[y * this.width + x] = colorIndex
@@ -64,20 +125,27 @@ export class VoxelDisplay {
     }
   }
 
+  /**
+   * Get the palette index at a pixel position.
+   * Returns 0 for out-of-bounds coordinates.
+   */
   getPixel(x: number, y: number): number {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return 0
     return this.buffer[y * this.width + x]
   }
 
+  /** Clear the framebuffer and depth buffer (all pixels to index 0). */
   clear(): void {
     this.buffer.fill(0)
     this.depthBuffer.fill(0)
   }
 
+  /** Fill all pixels with a single palette index. */
   fill(colorIndex: number): void {
     this.buffer.fill(colorIndex)
   }
 
+  /** Set an entire row from an array of palette indices. */
   setRow(y: number, data: number[]): void {
     if (y < 0 || y >= this.height) return
     const offset = y * this.width
@@ -86,6 +154,7 @@ export class VoxelDisplay {
     }
   }
 
+  /** Set a rectangular region from a flat array of palette indices. */
   setRegion(x: number, y: number, w: number, h: number, data: number[]): void {
     for (let dy = 0; dy < h; dy++) {
       for (let dx = 0; dx < w; dx++) {
@@ -94,33 +163,48 @@ export class VoxelDisplay {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Display properties
+  // ---------------------------------------------------------------------------
+
+  /** Set the opacity of active voxels (0–1). */
   setOpacity(opacity: number): void {
     this.opacity = Math.max(0, Math.min(1, opacity))
     this.cachedStyles = null
   }
 
+  /** Set the global extrusion depth (number of layers). */
   setDepth(depth: number): void {
     this.depth = depth
   }
 
-  getVoxelHeight(): number {
+  /** Get the current extrusion height per layer. */
+  getExtrudeHeight(): number {
     return this.extrudeHeight
   }
 
-  setVoxelHeight(height: number): void {
+  /** Set the extrusion height per layer in screen pixels. */
+  setExtrudeHeight(height: number): void {
     this.extrudeHeight = height
     this.cachedStyles = null
   }
 
+  /** Replace the color palette. Index 0 is the background/inactive color. */
   setPalette(palette: string[]): void {
     this.palette = [...palette]
     this.cachedStyles = null
   }
 
+  /** Get a copy of the current palette. */
   getPalette(): string[] {
     return [...this.palette]
   }
 
+  // ---------------------------------------------------------------------------
+  // Rendering
+  // ---------------------------------------------------------------------------
+
+  /** Render the current framebuffer to an SVG string. */
   render(): string {
     const h = new Heerich({
       tile: [this.pixelSize, Math.max(1, this.extrudeHeight), this.pixelSize],
@@ -133,7 +217,6 @@ export class VoxelDisplay {
     const styles = this.cachedStyles
 
     // Anchor voxels at grid corners to keep the viewBox stable across frames.
-    // Uses a transparent style so they're invisible but still define the bounding box.
     const anchorStyle = { fill: 'none', stroke: 'none', strokeWidth: 0 }
     const maxExtrude = 5
     const corners = [[0, 0], [this.width - 1, 0], [0, this.height - 1], [this.width - 1, this.height - 1]]
@@ -168,9 +251,7 @@ export class VoxelDisplay {
     }
 
     let svg = h.toSVG({ padding: 10 })
-    // Heerich sets style="width:100%; height:100%" which prevents actual sizing
     svg = svg.replace('style="width:100%; height:100%;"', '')
-    // Set explicit width/height from viewBox so 1 SVG unit = 1 screen pixel
     const vbMatch = svg.match(/viewBox="([^"]*)"/)
     if (vbMatch) {
       const parts = vbMatch[1].split(' ')
@@ -179,12 +260,24 @@ export class VoxelDisplay {
     return svg
   }
 
+  /** Render into a DOM element (defaults to the constructor's container). */
   renderTo(el?: HTMLElement): void {
     const target = el ?? this.container
     if (!target) return
     target.innerHTML = this.render()
   }
 
+  // ---------------------------------------------------------------------------
+  // Animation
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Start an animation loop. Calls `callback` at the specified frame rate,
+   * then automatically calls `renderTo()` after each frame.
+   *
+   * @param callback - Called each frame with `(frameNumber, elapsedMs)`.
+   * @param fps - Target frames per second. Default: 30.
+   */
   run(callback: (frame: number, elapsed: number) => void, fps: number = 30): void {
     this.stop()
     const interval = 1000 / fps
@@ -205,6 +298,7 @@ export class VoxelDisplay {
     this.animationId = requestAnimationFrame(loop)
   }
 
+  /** Stop the animation loop. */
   stop(): void {
     if (this.animationId !== null) {
       cancelAnimationFrame(this.animationId)
@@ -212,6 +306,15 @@ export class VoxelDisplay {
     }
   }
 
+  // ---------------------------------------------------------------------------
+  // Remote image source
+  // ---------------------------------------------------------------------------
+
+  /**
+   * Load a single image from a URL and render it to the display.
+   * The image is decoded via canvas, scaled to fit the display dimensions,
+   * and its colors are extracted into the palette automatically.
+   */
   async loadImage(url: string): Promise<void> {
     const { palette, buffer } = await decodeImageUrl(url, this.width, this.height)
     this.setPalette(palette)
@@ -219,7 +322,15 @@ export class VoxelDisplay {
     this.renderTo()
   }
 
-  connect(url: string, options?: { interval?: number }): void {
+  /**
+   * Connect to a remote image source and poll for new frames.
+   * Each poll fetches the URL, decodes the image, and renders it.
+   * Stops any running animation loop.
+   *
+   * @param url - Image URL to poll (PNG, WebP, GIF, etc.).
+   * @param options - Polling options.
+   */
+  connect(url: string, options?: ConnectOptions): void {
     this.disconnect()
     this.stop()
     const interval = options?.interval ?? 500
@@ -239,6 +350,59 @@ export class VoxelDisplay {
     this.pollTimer = setInterval(poll, interval)
   }
 
+  /**
+   * Connect to a WebSocket server that pushes image frames.
+   * Compatible with Pixlet's WebSocket protocol (`/api/v1/ws`), which sends
+   * JSON messages with `{ type: "img", message: "<base64 webp>" }`.
+   *
+   * Also works with any WebSocket that sends either:
+   * - JSON with a base64 `message` field and `type: "img"`
+   * - Raw binary image data (Blob)
+   *
+   * @param url - WebSocket URL (e.g. `"wss://example.com/api/v1/ws"`).
+   */
+  connectWebSocket(url: string): void {
+    this.disconnect()
+    this.stop()
+
+    this.ws = new WebSocket(url)
+
+    this.ws.onmessage = async (event) => {
+      try {
+        let frame
+        if (typeof event.data === 'string') {
+          // JSON message (Pixlet protocol)
+          const msg = JSON.parse(event.data)
+          if (msg.type !== 'img' || !msg.message) return
+          frame = await decodeBase64Image(msg.message, this.width, this.height)
+        } else if (event.data instanceof Blob) {
+          // Raw binary image
+          frame = await decodeBase64Image(
+            await new Promise<string>((resolve) => {
+              const reader = new FileReader()
+              reader.onload = () => {
+                const result = reader.result as string
+                resolve(result.split(',')[1])
+              }
+              reader.readAsDataURL(event.data)
+            }),
+            this.width,
+            this.height,
+          )
+        } else {
+          return
+        }
+
+        this.setPalette(frame.palette)
+        this.buffer = frame.buffer
+        this.renderTo()
+      } catch {
+        // Keep last frame on error
+      }
+    }
+  }
+
+  /** Stop polling, close WebSocket, or stop any remote source. The last frame remains displayed. */
   disconnect(): void {
     if (this.pollTimer !== null) {
       clearInterval(this.pollTimer)
@@ -247,6 +411,10 @@ export class VoxelDisplay {
     if (this.remoteAnimationId !== null) {
       cancelAnimationFrame(this.remoteAnimationId)
       this.remoteAnimationId = null
+    }
+    if (this.ws !== null) {
+      this.ws.close()
+      this.ws = null
     }
   }
 }

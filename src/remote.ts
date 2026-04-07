@@ -1,21 +1,18 @@
-// src/remote.ts
-
+/** Decoded image frame with extracted palette and pixel buffer. */
 export interface DecodedFrame {
   palette: string[]
   buffer: Uint8Array
 }
 
 /**
- * Fetch an image URL, decode it onto a canvas, and extract pixel colors.
+ * Decode an image blob onto a canvas and extract pixel colors.
  * Returns a palette of unique colors and a buffer of palette indices.
  */
-export async function decodeImageUrl(
-  url: string,
+export async function decodeImageBlob(
+  blob: Blob,
   width: number,
   height: number,
 ): Promise<DecodedFrame> {
-  const res = await fetch(url)
-  const blob = await res.blob()
   const bitmap = await createImageBitmap(blob, { resizeWidth: width, resizeHeight: height })
 
   const canvas = new OffscreenCanvas(width, height)
@@ -24,9 +21,8 @@ export async function decodeImageUrl(
   bitmap.close()
 
   const imageData = ctx.getImageData(0, 0, width, height)
-  const pixels = imageData.data // RGBA flat array
+  const pixels = imageData.data
 
-  // Build palette from unique colors, index 0 = first pixel (background)
   const colorMap = new Map<string, number>()
   const palette: string[] = []
   const buffer = new Uint8Array(width * height)
@@ -52,4 +48,34 @@ export async function decodeImageUrl(
   }
 
   return { palette, buffer }
+}
+
+/**
+ * Fetch an image URL, decode it, and extract pixel colors.
+ */
+export async function decodeImageUrl(
+  url: string,
+  width: number,
+  height: number,
+): Promise<DecodedFrame> {
+  const res = await fetch(url)
+  const blob = await res.blob()
+  return decodeImageBlob(blob, width, height)
+}
+
+/**
+ * Decode a base64-encoded image string into pixel data.
+ */
+export async function decodeBase64Image(
+  base64: string,
+  width: number,
+  height: number,
+): Promise<DecodedFrame> {
+  const binary = atob(base64)
+  const bytes = new Uint8Array(binary.length)
+  for (let i = 0; i < binary.length; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  const blob = new Blob([bytes])
+  return decodeImageBlob(blob, width, height)
 }

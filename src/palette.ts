@@ -1,3 +1,4 @@
+/** Default 16-color palette. Index 0 is the inactive/background color. */
 export const defaultPalette: string[] = [
   '#fbf4ea', // 0: off
   '#00ff41', // 1: green
@@ -18,7 +19,9 @@ export const defaultPalette: string[] = [
 ]
 
 /**
- * Darken a hex color by a factor (0 = unchanged, 1 = black).
+ * Darken a hex color by a factor.
+ * @param hex - Hex color string (e.g. `"#ff6600"`).
+ * @param amount - Darkening factor (0 = unchanged, 1 = black).
  */
 export function darkenHex(hex: string, amount: number): string {
   const r = parseInt(hex.slice(1, 3), 16)
@@ -31,11 +34,22 @@ export function darkenHex(hex: string, amount: number): string {
   return `#${dr.toString(16).padStart(2, '0')}${dg.toString(16).padStart(2, '0')}${db.toString(16).padStart(2, '0')}`
 }
 
+/** Face style map used by the heerich renderer. */
+export interface FaceStyle {
+  fill: string
+  stroke: string
+  strokeWidth: number
+  fillOpacity?: number
+}
+
 /**
- * Build a Heerich face style map from a single hex color.
- * Top = raw color, sides darkened 20%, front darkened 35%.
+ * Build a heerich face style map from a single hex color.
+ * Top face uses the raw color, sides are darkened 20%, front is darkened 35%.
+ *
+ * @param hex - Base hex color.
+ * @param opacity - Fill opacity (0–1). Default: 1.
  */
-export function buildFaceStyle(hex: string, opacity: number = 1): Record<string, { fill: string; stroke: string; strokeWidth: number; fillOpacity?: number }> {
+export function buildFaceStyle(hex: string, opacity: number = 1): Record<string, FaceStyle> {
   const o = opacity < 1 ? { fillOpacity: opacity } : {}
   const top = { fill: hex, stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o }
   const side = { fill: darkenHex(hex, 0.2), stroke: darkenHex(hex, 0.4), strokeWidth: 0.5, ...o }
