@@ -14,7 +14,6 @@ const pitchSlider = document.getElementById('pitch') as HTMLInputElement
 const opacitySlider = document.getElementById('opacity') as HTMLInputElement
 const activeColorPicker = document.getElementById('active-color') as HTMLInputElement
 const bgColorPicker = document.getElementById('bg-color') as HTMLInputElement
-const showInactiveCheckbox = document.getElementById('show-inactive') as HTMLInputElement
 const cameraSelect = document.getElementById('camera-type') as HTMLSelectElement
 const pixelSizeVal = document.getElementById('pixel-size-val')!
 const distanceVal = document.getElementById('distance-val')!
@@ -33,7 +32,6 @@ let currentFps = parseInt(fpsSlider.value)
 let currentAngle = parseInt(angleSlider.value)
 let currentPitch = parseInt(pitchSlider.value)
 let currentOpacity = parseInt(opacitySlider.value) / 100
-let currentShowInactive = showInactiveCheckbox.checked
 let currentCameraType = cameraSelect.value as 'oblique' | 'isometric' | 'orthographic'
 
 // Wire up text input to scrolling text animation
@@ -49,7 +47,6 @@ function createDisplay() {
     extrudeHeight: currentDistance,
     depth: currentDepth,
     opacity: currentOpacity,
-    showInactive: currentShowInactive,
     camera: { type: currentCameraType, angle: currentAngle, pitch: currentPitch },
   })
   const palette = d.getPalette()
@@ -118,10 +115,6 @@ opacitySlider.addEventListener('input', () => {
   display.setOpacity(currentOpacity)
 })
 
-showInactiveCheckbox.addEventListener('change', () => {
-  currentShowInactive = showInactiveCheckbox.checked
-  restartDisplay()
-})
 
 const pitchLabel = document.getElementById('pitch-label')!
 

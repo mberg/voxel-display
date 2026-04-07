@@ -2,7 +2,7 @@ import type { VoxelDisplay } from 'voxel-display'
 import type { Animation } from './types'
 
 const MATRIX_PALETTE = [
-  '#0a0a0a', // 0: off (near black)
+  '#1a1a2e', // 0: dark bg (shows grid)
   '#00ff41', // 1: bright matrix green
   '#00cc33', // 2: medium green
   '#009922', // 3: dark green
