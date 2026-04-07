@@ -46,5 +46,10 @@ export async function decodeImageUrl(
     buffer[i] = idx
   }
 
+  // Replace near-black background with dark navy so grid lines are visible
+  if (palette.length > 0 && palette[0] === '#000000') {
+    palette[0] = '#1a1a2e'
+  }
+
   return { palette, buffer }
 }

@@ -40,7 +40,7 @@ npm install voxel-display
 | `width` | `number` | `64` | Grid width in pixels |
 | `height` | `number` | `32` | Grid height in pixels |
 | `pixelSize` | `number` | `8` | X and Y size of each voxel face (always square) |
-| `voxelHeight` | `number` | `20` | Extrusion height per depth unit |
+| `extrudeHeight` | `number` | `20` | Extrusion height per depth unit |
 | `depth` | `number` | `1` | How many units active pixels extrude upward |
 | `palette` | `string[]` | 16-color default | Array of hex colors, index 0 = inactive |
 | `opaque` | `boolean` | `true` | Whether voxels occlude neighbors |
@@ -79,8 +79,8 @@ display.height  // Grid height (readonly)
 
 ```ts
 display.setDepth(depth)              // Change extrusion depth
-display.setVoxelHeight(height)       // Change extrusion height
-display.getVoxelHeight()             // Get current extrusion height
+display.setExtrudeHeight(height)     // Change extrusion height
+display.getExtrudeHeight()           // Get current extrusion height
 display.setPalette(colors)           // Replace the color palette
 display.getPalette()                 // Get current palette
 ```
@@ -93,6 +93,38 @@ display.renderTo(el?)     // Render into element (or constructor container)
 display.run(callback, fps) // Start animation loop
 display.stop()            // Stop animation loop
 ```
+
+### Remote Image Source
+
+Connect to any HTTP server that serves images to drive the display. This makes voxel-display language-agnostic — any server that produces a 64x32 image can power it.
+
+```ts
+// Poll a URL for new frames (default 500ms interval)
+display.connect('https://example.com/image.webp')
+display.connect('https://example.com/image.webp', { interval: 1000 })
+
+// Load a single image
+await display.loadImage('https://example.com/image.webp')
+
+// Stop polling
+display.disconnect()
+```
+
+The image is decoded via canvas, colors are extracted exactly, and the display palette is rebuilt each frame.
+
+### Tidbyt / Pixlet Compatible
+
+Voxel Display uses the same 64x32 pixel resolution as [Tidbyt](https://tidbyt.com) devices. You can use [Pixlet](https://github.com/tronbyt/pixlet) to create content and serve it directly to a voxel display:
+
+```bash
+# Start a pixlet server
+pixlet serve my_app.star
+
+# In the browser, connect voxel display to:
+# /api/v1/preview.webp (or the full URL of your pixlet server)
+```
+
+Any Pixlet app that runs on a Tidbyt will render on a voxel display.
 
 ### Animation Loop
 
