@@ -43,14 +43,14 @@ export class VoxelDisplay {
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
     this.height = options.height ?? 32
-    this.pixelSize = options.pixelSize ?? 8
+    this.pixelSize = options.pixelSize ?? 18
     this.extrudeHeight = options.extrudeHeight ?? 20
     this.depth = options.depth ?? 1
     this.opacity = options.opacity ?? 1
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'orthographic', angle: 3, pitch: 60 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 0, pitch: 60 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
     this.depthBuffer = new Uint8Array(this.width * this.height)
