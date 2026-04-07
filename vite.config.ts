@@ -8,6 +8,12 @@ export default defineConfig({
   build: {
     outDir: '../dist',
     emptyOutDir: true,
+    rollupOptions: {
+      input: {
+        main: 'demo/index.html',
+        voxscreen: 'demo/voxscreen.html',
+      },
+    },
   },
   plugins: [basicSsl()],
   server: {
@@ -22,6 +28,7 @@ export default defineConfig({
       '/pixlet': {
         target: 'http://localhost:8080',
         changeOrigin: true,
+        ws: true,
         rewrite: (path) => path.replace(/^\/pixlet/, ''),
       },
     },

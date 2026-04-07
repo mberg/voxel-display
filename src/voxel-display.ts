@@ -1,6 +1,6 @@
 import { Heerich } from 'heerich'
 import { defaultPalette, buildFaceStyle } from './palette.js'
-import { decodeImageUrl, decodeBase64Image } from './remote.js'
+import { decodeImageUrl } from './remote.js'
 
 /** Camera projection settings for the 3D voxel view. */
 export interface CameraOptions {
@@ -86,7 +86,6 @@ export class VoxelDisplay {
   private cachedStyles: ReturnType<typeof buildFaceStyle>[] | null = null
   private pollTimer: ReturnType<typeof setInterval> | null = null
   private remoteAnimationId: number | null = null
-  private ws: WebSocket | null = null
 
   constructor(options: VoxelDisplayOptions = {}) {
     this.width = options.width ?? 64
@@ -350,59 +349,7 @@ export class VoxelDisplay {
     this.pollTimer = setInterval(poll, interval)
   }
 
-  /**
-   * Connect to a WebSocket server that pushes image frames.
-   * Compatible with Pixlet's WebSocket protocol (`/api/v1/ws`), which sends
-   * JSON messages with `{ type: "img", message: "<base64 webp>" }`.
-   *
-   * Also works with any WebSocket that sends either:
-   * - JSON with a base64 `message` field and `type: "img"`
-   * - Raw binary image data (Blob)
-   *
-   * @param url - WebSocket URL (e.g. `"wss://example.com/api/v1/ws"`).
-   */
-  connectWebSocket(url: string): void {
-    this.disconnect()
-    this.stop()
-
-    this.ws = new WebSocket(url)
-
-    this.ws.onmessage = async (event) => {
-      try {
-        let frame
-        if (typeof event.data === 'string') {
-          // JSON message (Pixlet protocol)
-          const msg = JSON.parse(event.data)
-          if (msg.type !== 'img' || !msg.message) return
-          frame = await decodeBase64Image(msg.message, this.width, this.height)
-        } else if (event.data instanceof Blob) {
-          // Raw binary image
-          frame = await decodeBase64Image(
-            await new Promise<string>((resolve) => {
-              const reader = new FileReader()
-              reader.onload = () => {
-                const result = reader.result as string
-                resolve(result.split(',')[1])
-              }
-              reader.readAsDataURL(event.data)
-            }),
-            this.width,
-            this.height,
-          )
-        } else {
-          return
-        }
-
-        this.setPalette(frame.palette)
-        this.buffer = frame.buffer
-        this.renderTo()
-      } catch {
-        // Keep last frame on error
-      }
-    }
-  }
-
-  /** Stop polling, close WebSocket, or stop any remote source. The last frame remains displayed. */
+  /** Stop polling a remote image source. The last frame remains displayed. */
   disconnect(): void {
     if (this.pollTimer !== null) {
       clearInterval(this.pollTimer)
@@ -411,10 +358,6 @@ export class VoxelDisplay {
     if (this.remoteAnimationId !== null) {
       cancelAnimationFrame(this.remoteAnimationId)
       this.remoteAnimationId = null
-    }
-    if (this.ws !== null) {
-      this.ws.close()
-      this.ws = null
     }
   }
 }

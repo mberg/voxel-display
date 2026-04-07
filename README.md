@@ -113,21 +113,6 @@ display.disconnect()
 
 The image is decoded via canvas, colors are extracted exactly, and the display palette is rebuilt each frame.
 
-### WebSocket Support
-
-For lower latency, connect to a WebSocket server that pushes frames. Compatible with [Pixlet](https://github.com/tronbyt/pixlet)'s WebSocket protocol:
-
-```ts
-// Connect to a Pixlet WebSocket (pushes base64 WebP frames)
-display.connectWebSocket('wss://example.com/api/v1/ws')
-
-// Also accepts raw binary image blobs
-display.connectWebSocket('wss://example.com/stream')
-
-// Disconnect
-display.disconnect()
-```
-
 ### Tidbyt / Pixlet Compatible
 
 Voxel Display uses the same 64x32 pixel resolution as [Tidbyt](https://tidbyt.com) devices. You can use [Pixlet](https://github.com/tronbyt/pixlet) to create content and serve it directly to a voxel display:
@@ -136,11 +121,8 @@ Voxel Display uses the same 64x32 pixel resolution as [Tidbyt](https://tidbyt.co
 # Start a pixlet server
 pixlet serve my_app.star
 
-# Poll the preview endpoint
+# Connect voxel display to the preview endpoint
 display.connect('http://localhost:8080/api/v1/preview.webp')
-
-# Or use WebSocket for real-time updates
-display.connectWebSocket('ws://localhost:8080/api/v1/ws')
 ```
 
 Any Pixlet app that runs on a Tidbyt will render on a voxel display.

@@ -63,19 +63,3 @@ export async function decodeImageUrl(
   return decodeImageBlob(blob, width, height)
 }
 
-/**
- * Decode a base64-encoded image string into pixel data.
- */
-export async function decodeBase64Image(
-  base64: string,
-  width: number,
-  height: number,
-): Promise<DecodedFrame> {
-  const binary = atob(base64)
-  const bytes = new Uint8Array(binary.length)
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i)
-  }
-  const blob = new Blob([bytes])
-  return decodeImageBlob(blob, width, height)
-}
