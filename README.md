@@ -1,6 +1,6 @@
 # Voxel Display
 
-A 2D framebuffer rendered as 3D voxels using SVG. Built on [heerich](https://github.com/meodai/heerich).
+A virtual 64x32 voxel display using SVG. Built on [heerich](https://github.com/meodai/heerich).  Inspired by the [Tidbyt](https://tidbyt.com/).
 
 **[Live Demo](https://mberg.github.io/voxel-display/)**
 
