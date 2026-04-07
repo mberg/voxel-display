@@ -7,6 +7,7 @@ export interface AnimationPresets {
   bgColor?: string
   activeColor?: string
   fps?: number
+  angle?: number
 }
 
 export interface Animation {

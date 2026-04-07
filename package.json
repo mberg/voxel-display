@@ -8,7 +8,8 @@
     "build": "vite build"
   },
   "dependencies": {
-    "heerich": "^0.10.0"
+    "heerich": "^0.10.0",
+    "qrcode-generator": "^2.0.4"
   },
   "devDependencies": {
     "@vitejs/plugin-basic-ssl": "^2.3.0",

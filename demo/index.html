@@ -104,8 +104,8 @@
         <span class="value" id="fps-val">10</span>
       </label>
       <label>
-        Angle <input type="range" id="angle" min="0" max="360" value="6">
-        <span class="value" id="angle-val">6</span>
+        Angle <input type="range" id="angle" min="0" max="360" value="3">
+        <span class="value" id="angle-val">3</span>
       </label>
       <label id="pitch-label">
         Pitch <input type="range" id="pitch" min="0" max="90" value="60">
@@ -138,6 +138,8 @@
     <button data-anim="text">Scrolling Text</button>
     <button data-anim="world">World Map</button>
     <button data-anim="eq">EQ</button>
+    <button data-anim="webcam">Webcam</button>
+    <button data-anim="qrcode">QR Code</button>
     <button data-anim="remote">Tidbyt</button>
   </div>
   <p style="margin-top:0.5rem; font-size:0.8rem; color:#999;">64x32 Voxel Display (Tidbyt compatible)</p>
@@ -146,6 +148,11 @@
       URL <input type="text" id="remote-url" value="https://pixlet-production.up.railway.app/api/v1/preview.webp" style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">
     </label>
     <button id="remote-connect" style="background:#fff; color:#333; border:1px solid #333; padding:0.3rem 0.8rem; cursor:pointer; font-family:monospace; font-size:0.9rem; margin-left:0.5rem;">Connect</button>
+  </div>
+  <div id="qr-input-row" style="display:none; margin-top:1rem;">
+    <label style="font-size:0.9rem; color:#666;">
+      URL <input type="text" id="qr-text" value="https://mberg.github.io/voxel-display/" style="font-family:monospace; font-size:0.9rem; padding:0.3rem 0.5rem; border:1px solid #333; background:#fff; color:#333; width:20rem;">
+    </label>
   </div>
   <div id="text-input-row" style="display:none; margin-top:1rem;">
     <label style="font-size:0.9rem; color:#666;">

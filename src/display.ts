@@ -34,6 +34,7 @@ export class VoxelDisplay {
   private camera: VoxelDisplayOptions['camera']
   private container: HTMLElement | null
   private buffer: Uint8Array
+  private depthBuffer: Uint8Array
   private animationId: number | null = null
   private cachedStyles: ReturnType<typeof buildFaceStyle>[] | null = null
   private pollTimer: ReturnType<typeof setInterval> | null = null
@@ -49,14 +50,18 @@ export class VoxelDisplay {
     this.opaque = options.opaque ?? true
     this.showInactive = options.showInactive ?? true
     this.palette = options.palette ?? [...defaultPalette]
-    this.camera = options.camera ?? { type: 'orthographic', angle: 6, pitch: 60 }
+    this.camera = options.camera ?? { type: 'orthographic', angle: 3, pitch: 60 }
     this.container = options.container ?? null
     this.buffer = new Uint8Array(this.width * this.height)
+    this.depthBuffer = new Uint8Array(this.width * this.height)
   }
 
-  setPixel(x: number, y: number, colorIndex: number): void {
+  setPixel(x: number, y: number, colorIndex: number, depth?: number): void {
     if (x < 0 || x >= this.width || y < 0 || y >= this.height) return
     this.buffer[y * this.width + x] = colorIndex
+    if (depth !== undefined) {
+      this.depthBuffer[y * this.width + x] = depth
+    }
   }
 
   getPixel(x: number, y: number): number {
@@ -66,6 +71,7 @@ export class VoxelDisplay {
 
   clear(): void {
     this.buffer.fill(0)
+    this.depthBuffer.fill(0)
   }
 
   fill(colorIndex: number): void {
@@ -147,7 +153,8 @@ export class VoxelDisplay {
         const isOn = idx > 0
         if (!isOn && !this.showInactive) continue
         const baseHeight = this.pixelSize / Math.max(1, this.extrudeHeight)
-        const extrudeUnits = isOn ? this.depth : 0
+        const pixelDepth = this.depthBuffer[y * this.width + x]
+        const extrudeUnits = isOn ? (pixelDepth || this.depth) : 0
         const yPos = -extrudeUnits
         const ySize = extrudeUnits + baseHeight
         h.addGeometry({

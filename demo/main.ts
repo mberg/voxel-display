@@ -1,5 +1,5 @@
 import { VoxelDisplay } from 'voxel-display'
-import { wave, matrix, text, setTextSource, world, mic, type Animation } from './animations'
+import { wave, matrix, text, setTextSource, world, mic, cam, qr, setQrSource, type Animation } from './animations'
 
 const container = document.getElementById('display')!
 
@@ -39,6 +39,11 @@ setTextSource(() => {
   const val = scrollTextInput.value.toUpperCase()
   return val.length > 0 ? val : ' '
 })
+
+// Wire up QR code input
+const qrInputRow = document.getElementById('qr-input-row')!
+const qrTextInput = document.getElementById('qr-text') as HTMLInputElement
+setQrSource(() => qrTextInput.value || 'https://mberg.github.io/voxel-display/')
 
 function createDisplay() {
   const d = new VoxelDisplay({
@@ -164,10 +169,16 @@ function applyPresets(anim: Animation) {
   currentFps = fps
   fpsSlider.value = String(fps)
   fpsVal.textContent = String(fps)
+  // Apply angle preset if set
+  if (presets?.angle !== undefined) {
+    currentAngle = presets.angle
+    angleSlider.value = String(presets.angle)
+    angleVal.textContent = String(presets.angle)
+  }
 }
 
 const animations: Record<string, Animation> = {
-  wave, matrix, text, world, eq: mic,
+  wave, matrix, text, world, eq: mic, webcam: cam, qrcode: qr,
 }
 
 let currentAnim: Animation = wave
@@ -205,6 +216,7 @@ buttons.forEach(btn => {
     disconnectRemote()
     if (currentAnim.onStop) currentAnim.onStop()
     textInputRow.style.display = name === 'text' ? '' : 'none'
+    qrInputRow.style.display = name === 'qrcode' ? '' : 'none'
     remoteRow.style.display = name === 'remote' ? '' : 'none'
     if (name === 'remote') {
       connectRemote()
