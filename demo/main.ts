@@ -175,6 +175,12 @@ function applyPresets(anim: Animation) {
     angleSlider.value = String(presets.angle)
     angleVal.textContent = String(presets.angle)
   }
+  // Apply pitch preset if set
+  if (presets?.pitch !== undefined) {
+    currentPitch = presets.pitch
+    pitchSlider.value = String(presets.pitch)
+    pitchVal.textContent = String(presets.pitch)
+  }
 }
 
 const animations: Record<string, Animation> = {

@@ -4,9 +4,6 @@ let video: HTMLVideoElement | null = null
 let canvas: OffscreenCanvas | null = null
 let ctx: OffscreenCanvasRenderingContext2D | null = null
 let camStream: MediaStream | null = null
-let persistentPalette: string[] = ['#1a1a2e']
-let persistentColorMap = new Map<string, number>()
-let paletteChanged = false
 
 async function startCam() {
   if (video) return
@@ -30,16 +27,21 @@ function stopCam() {
   ctx = null
 }
 
-const CAM_PALETTE = [
+const GRAYSCALE_PALETTE = [
   '#1a1a2e', // 0: dark bg
+  '#333333', // 1
+  '#555555', // 2
+  '#777777', // 3
+  '#999999', // 4
+  '#bbbbbb', // 5
+  '#dddddd', // 6
+  '#ffffff', // 7
 ]
 
 export const cam: Animation = {
   name: 'Webcam',
-  presets: { palette: CAM_PALETTE, fps: 15 },
+  presets: { palette: GRAYSCALE_PALETTE, fps: 15, angle: 0, pitch: 70 },
   async onStart() {
-    persistentPalette = ['#1a1a2e']
-    persistentColorMap = new Map()
     await startCam()
   },
   onStop() {
@@ -66,7 +68,6 @@ export const cam: Animation = {
     const pixels = imageData.data
 
     display.clear()
-    paletteChanged = false
 
     for (let y = 0; y < h; y++) {
       for (let x = 0; x < w; x++) {
@@ -75,37 +76,14 @@ export const cam: Animation = {
         const g = pixels[i + 1]
         const b = pixels[i + 2]
 
-        // Skip pure black pixels (treat as background)
-        if (r === 0 && g === 0 && b === 0) continue
-
-        // Quantize to 4-bit (16 levels per channel = max 4096 colors)
-        const qr = (r >> 4) << 4
-        const qg = (g >> 4) << 4
-        const qb = (b >> 4) << 4
-        const key = `${qr},${qg},${qb}`
-
-        let idx = persistentColorMap.get(key)
-        if (idx === undefined) {
-          idx = persistentPalette.length
-          if (idx >= 255) {
-            idx = 1
-          } else {
-            const hex = `#${qr.toString(16).padStart(2, '0')}${qg.toString(16).padStart(2, '0')}${qb.toString(16).padStart(2, '0')}`
-            persistentPalette.push(hex)
-            persistentColorMap.set(key, idx)
-            paletteChanged = true
-          }
-        }
-        // Use brightness as depth — brighter pixels extrude more
         const brightness = (r + g + b) / 765 // 0-1
-        const depth = Math.ceil(brightness * 5)
-        display.setPixel(x, y, idx, depth)
-      }
-    }
+        if (brightness < 0.05) continue // dark = background
 
-    // Only update palette when new colors are discovered
-    if (paletteChanged) {
-      display.setPalette(persistentPalette)
+        // Map brightness to grayscale palette index (1-7)
+        const shade = Math.min(7, Math.max(1, Math.ceil(brightness * 7)))
+        const depth = Math.ceil(brightness * 5)
+        display.setPixel(x, y, shade, depth)
+      }
     }
   },
 }

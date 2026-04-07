@@ -8,6 +8,7 @@ export interface AnimationPresets {
   activeColor?: string
   fps?: number
   angle?: number
+  pitch?: number
 }
 
 export interface Animation {
